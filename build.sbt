@@ -16,6 +16,8 @@ libraryDependencies ++= Seq(
   "org.apache.activemq" % "activemq-client" % "5.15.7",
   "org.apache.activemq" % "activemq-broker" % "5.15.7",
   "com.lightbend.akka" %% "akka-stream-alpakka-jms" % "1.0-M1",
+  "com.lightbend.akka" %% "akka-stream-alpakka-slick" % "1.0-M1",
+  "mysql" % "mysql-connector-java" % "8.0.11",
 
   "com.typesafe.akka" %% "akka-stream-kafka" % "1.0-M1",
   "org.apache.kafka" %% "kafka" % "2.0.0",

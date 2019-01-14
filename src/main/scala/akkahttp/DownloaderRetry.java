@@ -17,7 +17,10 @@ import java.io.InputStream;
 import java.net.URL;
 
 
+
 /**
+ * Uses apache.http.client
+ *
  * TODO Add Backoff:
  * https://stackoverflow.com/questions/35391005/how-to-use-an-exponential-backoff-strategy-with-apache-httpclient
  *
