@@ -7,7 +7,7 @@ version := "1.0"
 scalaVersion := "2.13.13"
 
 val pekkoVersion = "1.0.2"
-val pekkoHTTPVersion = "1.0.0"
+val pekkoHTTPVersion = "1.0.1"
 val pekkoConnectorVersion = "1.0.2"
 val pekkoConnectorKafkaVersion = "1.0.0"
 
@@ -18,7 +18,7 @@ val testContainersVersion = "1.19.7"
 val keycloakVersion = "21.1.2" // stay with 21.x because of Java 11 compatibility
 val sttpVersion = "3.9.0"
 val influxdbVersion = "6.10.0"
-val awsClientVersion = "2.23.21"
+val awsClientVersion = "2.25.21"
 
 libraryDependencies ++= Seq(
   "org.scala-lang.modules" %% "scala-parallel-collections" % "1.0.4",
@@ -32,6 +32,8 @@ libraryDependencies ++= Seq(
   "org.apache.pekko" %% "pekko-http" % pekkoHTTPVersion,
   // JSON (un)marshalling support for pekko-http
   "org.apache.pekko" %% "pekko-http-spray-json" % pekkoHTTPVersion,
+  "org.apache.pekko" %% "pekko-http-xml" % pekkoHTTPVersion,
+  
   // JSON (un)marshalling in Java examples
   "org.json" % "json" % "20231013",
 
