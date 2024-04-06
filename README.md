@@ -83,7 +83,7 @@ Dropping identical (consecutive or non-consecutive) elements in an unbounded str
   the `sliding` operator
 * [Dedupe](src/main/scala/sample/stream_shared_state/Dedupe.scala) shows
   the [squbs Deduplicate GraphStage](https://squbs.readthedocs.io/en/latest/deduplicate) which allows
-  to dedupe both types (N/A for Pekko)
+  to dedupe both types
 
 The following use case uses a local caffeine cache to avoid duplicate HTTP file downloads:
 

@@ -83,9 +83,10 @@ libraryDependencies ++= Seq(
   "org.apache.pekko" %% "pekko-connectors-sqs" % pekkoConnectorVersion,
   "software.amazon.awssdk" % "sqs" % awsClientVersion,
 
-  "org.squbs" %% "squbs-ext" % "0.15.0", // not (yet) migrated to pekko
 
-  "com.influxdb" %% "influxdb-client-scala" % influxdbVersion, // not (yet) migrated to pekko
+  // Migrated to pekko, but new client 7.0.0 only supports Java 17  (not Java 11)
+  // https://github.com/influxdata/influxdb-client-java/blob/master/CHANGELOG.md
+  "com.influxdb" %% "influxdb-client-scala" % influxdbVersion,
   "com.influxdb" % "flux-dsl" % influxdbVersion,
   "org.influxdb" % "influxdb-java" % "2.23",
 
