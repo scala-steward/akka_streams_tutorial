@@ -75,6 +75,8 @@ libraryDependencies ++= Seq(
   "org.apache.pekko" %% "pekko-connectors-slick" % pekkoConnectorVersion,
   "org.apache.pekko" %% "pekko-connectors-csv" % pekkoConnectorVersion,
   "org.apache.pekko" %% "pekko-connectors-s3" % pekkoConnectorVersion,
+  "org.apache.pekko" %% "pekko-connectors-dynamodb" % pekkoConnectorVersion,
+
 
   "org.apache.pekko" %% "pekko-connectors-kinesis" % pekkoConnectorVersion,
   "software.amazon.awssdk" % "kinesis" % awsClientVersion,
