@@ -40,7 +40,7 @@ class DynamoDBEcho(urlWithMappedPort: URI, accessKey: String, secretKey: String,
     for {
       _ <- createTable()
       _ <- writeItems(noOfItems)
-      result <- readItems()
+      result <- readItems(noOfItems)
     } yield result
   }
 
@@ -53,7 +53,7 @@ class DynamoDBEcho(urlWithMappedPort: URI, accessKey: String, secretKey: String,
       .via(DynamoDb.flow(parallelism = 1))
 
     source
-      .map(descTableResponse => logger.info(s"Successfully created table: ${descTableResponse.table.tableName}"))
+      .wireTap(descTableResponse => logger.info(s"Successfully created table: ${descTableResponse.table.tableName}"))
       .runWith(Sink.ignore)
   }
 
@@ -95,7 +95,7 @@ class DynamoDBEcho(urlWithMappedPort: URI, accessKey: String, secretKey: String,
         val request = PutItemRequest.builder().tableName(testTableName).item(Map(
           "Id" -> AttributeValue.builder().s(item.toString).build(),
           "att1" -> AttributeValue.builder().s(s"att1-$item").build(),
-          "att2" -> AttributeValue.builder().s(s"att2-$item").build()
+          "att2" -> AttributeValue.builder().n(s"$item").build()
         ).asJava).build()
         (request, RequestContext(testTableName, requestId))
       })
@@ -114,23 +114,34 @@ class DynamoDBEcho(urlWithMappedPort: URI, accessKey: String, secretKey: String,
       .runWith(Sink.ignore)
   }
 
-  private def readItems() = {
-    logger.info(s"About to read items...")
+  private def readItems(noOfItems: Int) = {
+    logger.info(s"About to read 2nd half of all items...")
 
-    // This hangs when no table is available
-    val scanRequest = ScanRequest.builder().tableName(testTableName).build()
+    val filterExpression = "#att2 > :val"
+    val expressionAttrNames = new java.util.HashMap[String, String]()
+    expressionAttrNames.put("#att2", "att2")
+
+    val expressionAttrValues = new java.util.HashMap[String, AttributeValue]()
+    expressionAttrValues.put(":val", AttributeValue.builder().n((noOfItems / 2).toString).build())
+
+    val scanRequest = ScanRequest.builder()
+      .tableName(testTableName) // This hangs when no table is available
+      .filterExpression(filterExpression)
+      .expressionAttributeNames(expressionAttrNames)
+      .expressionAttributeValues(expressionAttrValues)
+      .build()
+
     val scanPageInFlow: Source[ScanResponse, NotUsed] =
       Source
         .single(scanRequest)
         .via(DynamoDb.flowPaginated())
 
-    scanPageInFlow.map { (response: ScanResponse) => {
-      val count = response.scannedCount()
-      logger.info(s"Successfully read $count items")
-      response.items().forEach(item => logger.info(s"Item: $item"))
-      response.items().size()
-    }
-
+    scanPageInFlow.map { scanResponse =>
+      val count = scanResponse.scannedCount()
+      val resultCount = scanResponse.items().size()
+      logger.info(s"Successfully read $resultCount/$count items")
+      scanResponse.items().forEach(item => logger.info(s"Item: $item"))
+      resultCount
     }.runWith(Sink.head)
   }
 

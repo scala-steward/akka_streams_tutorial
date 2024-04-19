@@ -20,6 +20,12 @@ import static org.testcontainers.containers.localstack.LocalStackContainer.Servi
 
 /**
  * Setup/run {@link alpakka.dynamodb.DynamoDBEcho} on localStack container
+ *
+ * Running this example against AWS:
+ * Looks as if there is a way to delete a DB instance via the SDK:
+ * https://docs.aws.amazon.com/code-library/latest/ug/rds_example_rds_DeleteDBInstance_section.html
+ * However, getting the `dbInstanceIdentifier` via SDK is not straightforward
+ * Therefore, we only run against localStack for now in order to avoid dangling resources
  * <p>
  * Doc:
  * https://pekko.apache.org/docs/pekko-connectors/current/dynamodb.html#aws-dynamodb
@@ -45,10 +51,10 @@ public class DynamoDBEchoIT {
     @Test
     public void testLocal() throws ExecutionException, InterruptedException {
         DynamoDBEcho dynamoDBEcho = new DynamoDBEcho(localStack.getEndpointOverride(DYNAMODB), localStack.getAccessKey(), localStack.getSecretKey(), localStack.getRegion());
-        int noOfItems = 10;
+        int noOfItemsEven = 10;
 
-        CompletionStage<Object> result = FutureConverters.asJava(dynamoDBEcho.run(noOfItems));
-        assertThat(result.toCompletableFuture().get()).isEqualTo(noOfItems);
+        CompletionStage<Object> result = FutureConverters.asJava(dynamoDBEcho.run(noOfItemsEven));
+        assertThat(result.toCompletableFuture().get()).isEqualTo(noOfItemsEven / 2);
     }
 }
 

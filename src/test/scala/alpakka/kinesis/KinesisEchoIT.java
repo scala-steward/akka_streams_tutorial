@@ -28,7 +28,7 @@ import static org.testcontainers.containers.localstack.LocalStackContainer.Servi
 
 /**
  * Setup/run {@link alpakka.kinesis.KinesisEcho} on localStack container
- * Additionally use the classic sync AWS KinesisClient to create/delete streams
+ * Use the classic sync AWS KinesisClient to create/delete streams
  * <p>
  * Doc:
  * https://testcontainers.com/modules/localstack
