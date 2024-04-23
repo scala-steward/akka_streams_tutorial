@@ -30,7 +30,7 @@ object JMSServerArtemis extends App {
   val serverUrl = s"tcp://$host:$port"
 
   val securityConfig = new SecurityConfiguration()
-  securityConfig.addUser("artemis", "simetraehcapa")
+  securityConfig.addUser("artemis", "artemis")
   securityConfig.addRole("artemis", "guest")
   // Needed when run with broker_docker.xml
   securityConfig.addRole("artemis", "amq")

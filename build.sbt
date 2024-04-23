@@ -12,8 +12,8 @@ val pekkoConnectorVersion = "1.0.2"
 val pekkoConnectorKafkaVersion = "1.0.0"
 
 val kafkaVersion = "3.6.1"
-val activemqVersion = "5.18.3"
-val artemisVersion = "2.31.2"
+val activemqVersion = "5.18.4"
+val artemisVersion = "2.33.0"
 val testContainersVersion = "1.19.7"
 val keycloakVersion = "21.1.2" // stay with 21.x because of Java 11 compatibility
 val sttpVersion = "3.9.0"
@@ -35,7 +35,7 @@ libraryDependencies ++= Seq(
   "org.apache.pekko" %% "pekko-http-xml" % pekkoHTTPVersion,
   
   // JSON (un)marshalling in Java examples
-  "org.json" % "json" % "20231013",
+  "org.json" % "json" % "20240303",
 
   "io.circe" %% "circe-core" % "0.14.6",
   "io.circe" %% "circe-generic" % "0.14.6",
@@ -55,7 +55,7 @@ libraryDependencies ++= Seq(
   "org.apache.activemq" % "artemis-protocols" % artemisVersion pomOnly(),
   "org.apache.activemq" % "artemis-openwire-protocol" % artemisVersion,
 
-  "org.bouncycastle" % "bcprov-jdk15to18" % "1.77",
+  "org.bouncycastle" % "bcprov-jdk15to18" % "1.78.1",
 
   "org.apache.pekko" %% "pekko-connectors-kafka" % pekkoConnectorKafkaVersion,
   "org.apache.kafka" %% "kafka" % kafkaVersion,
@@ -102,7 +102,7 @@ libraryDependencies ++= Seq(
 
   "org.apache.httpcomponents.client5" % "httpclient5" % "5.3.1",
   "org.apache.httpcomponents.core5" % "httpcore5" % "5.2.4",
-  "commons-io" % "commons-io" % "2.11.0",
+  "commons-io" % "commons-io" % "2.16.1",
   "org.apache.commons" % "commons-lang3" % "3.12.0",
   "com.twitter" %% "bijection-avro" % "0.9.7",
 
