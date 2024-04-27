@@ -18,7 +18,7 @@ import software.amazon.awssdk.services.kinesis.model.{PutRecordsRequestEntry, Pu
 import java.net.URI
 import java.nio.charset.StandardCharsets
 import scala.concurrent.duration.DurationInt
-import scala.concurrent.{Await, Future}
+import scala.concurrent.{Await, ExecutionContextExecutor, Future}
 import scala.util.{Failure, Success}
 
 /**
@@ -42,8 +42,8 @@ import scala.util.{Failure, Success}
   */
 class KinesisEcho(urlWithMappedPort: URI = new URI(""), accessKey: String = "", secretKey: String = "", region: String = "") {
   val logger: Logger = LoggerFactory.getLogger(this.getClass)
-  implicit val system = ActorSystem("KinesisEcho")
-  implicit val executionContext = system.dispatcher
+  implicit val system: ActorSystem = ActorSystem("KinesisEcho")
+  implicit val executionContext: ExecutionContextExecutor = system.dispatcher
 
   val kinesisDataStreamName = "kinesisDataStreamProvisioned"
   val shardIdName = "shardId-000000000000"

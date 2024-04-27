@@ -2,7 +2,7 @@ package alpakka.mqtt
 
 import org.apache.pekko.Done
 import org.apache.pekko.actor.ActorSystem
-import org.apache.pekko.stream.connectors.mqtt.streaming._
+import org.apache.pekko.stream.connectors.mqtt.streaming.*
 import org.apache.pekko.stream.connectors.mqtt.streaming.scaladsl.{ActorMqttClientSession, Mqtt}
 import org.apache.pekko.stream.scaladsl.{Keep, Sink, Source, SourceQueueWithComplete, Tcp}
 import org.apache.pekko.stream.{OverflowStrategy, ThrottleMode}
@@ -51,12 +51,12 @@ object MqttEcho extends App {
 
     val topic = "myTopic"
     val clientId = s"Pub-$id"
-    val connAckPromise = Promise[Unit]
+    val connAckPromise = Promise[Unit]()
 
     val pubClient = client(clientId, sys, host, port, connAckPromise)
 
     // A received ConAck confirms that we are connected
-    connAckPromise.future.onComplete { _: Try[Unit] =>
+    connAckPromise.future.onComplete { (_: Try[Unit]) =>
       logger.info(s"$clientId bound to: $host:$port")
 
       Source(1 to 100)
@@ -87,11 +87,11 @@ object MqttEcho extends App {
 
     val topic = "myTopic"
     val clientId = s"Sub-$id"
-    val connAckPromise = Promise[Unit]
+    val connAckPromise = Promise[Unit]()
     val subClient = client(clientId, sys, host, port, connAckPromise)
 
     // A received ConAck confirms that we are connected
-    connAckPromise.future.onComplete { _: Try[Unit] =>
+    connAckPromise.future.onComplete { (_: Try[Unit]) =>
       logger.info(s"$clientId bound to: $host:$port")
 
       // Delay the subscription to get a "last known good value" eg 6

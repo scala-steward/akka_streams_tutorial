@@ -161,6 +161,8 @@ val workaround = {
 
 scalacOptions += "-deprecation"
 scalacOptions += "-feature"
+//https://docs.scala-lang.org/scala3/guides/migration/tooling-scala2-xsource3.html
+scalacOptions += "-Xsource:3"
 
 run / fork := true
 

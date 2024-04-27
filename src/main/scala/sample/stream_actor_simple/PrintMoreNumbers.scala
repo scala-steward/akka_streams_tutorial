@@ -1,14 +1,15 @@
 package sample.stream_actor_simple
 
-import org.apache.pekko.actor.Actor
+import org.apache.pekko.actor.{Actor, ActorSystem}
 import org.apache.pekko.stream.scaladsl.{Keep, Sink, Source}
 import org.apache.pekko.stream.{KillSwitches, UniqueKillSwitch}
 
-import scala.concurrent.duration._
+import scala.concurrent.ExecutionContextExecutor
+import scala.concurrent.duration.*
 
 class PrintMoreNumbers extends Actor {
-  implicit val system = context.system
-  implicit val executionContext = context.system.dispatcher
+  implicit val system: ActorSystem = context.system
+  implicit val executionContext: ExecutionContextExecutor = context.system.dispatcher
 
   private val (killSwitch: UniqueKillSwitch, done) =
     Source.tick(0.seconds, 1.second, 1)

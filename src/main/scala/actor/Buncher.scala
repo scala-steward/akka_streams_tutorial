@@ -4,7 +4,7 @@ import org.apache.pekko.actor.typed.scaladsl.Behaviors
 import org.apache.pekko.actor.typed.{ActorRef, ActorSystem, Behavior}
 
 import scala.collection.immutable
-import scala.concurrent.duration._
+import scala.concurrent.duration.*
 
 /**
   * This akka typed actor FSM example demonstrates how to:
@@ -57,7 +57,7 @@ object Buncher extends App {
 
   // states of the FSM represented as behaviors
 
-  private def idle(data: Data): Behavior[Event] = Behaviors.receiveMessage[Event] { message: Event =>
+  private def idle(data: Data): Behavior[Event] = Behaviors.receiveMessage[Event] { message =>
     (message, data) match {
       case (SetTarget(ref), Uninitialized) =>
         // action: add obj to queue

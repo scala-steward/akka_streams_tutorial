@@ -4,8 +4,8 @@ import org.apache.pekko.Done
 import org.apache.pekko.actor.{ActorRef, ActorSystem}
 import org.apache.pekko.http.scaladsl.Http
 import org.apache.pekko.http.scaladsl.model.StatusCodes
-import org.apache.pekko.http.scaladsl.model.ws._
-import org.apache.pekko.http.scaladsl.server.Directives._
+import org.apache.pekko.http.scaladsl.model.ws.*
+import org.apache.pekko.http.scaladsl.server.Directives.*
 import org.apache.pekko.http.scaladsl.server.Route
 import org.apache.pekko.http.scaladsl.server.directives.WebSocketDirectives
 import org.apache.pekko.pattern.ask
@@ -18,9 +18,9 @@ import sttp.client3.{UriContext, asWebSocket, basicRequest}
 import sttp.ws.WebSocket
 
 import java.time.LocalDateTime
-import scala.collection.parallel.CollectionConverters._
+import scala.collection.parallel.CollectionConverters.*
 import scala.concurrent.duration.DurationInt
-import scala.concurrent.{Await, Future, Promise}
+import scala.concurrent.{Await, ExecutionContextExecutor, Future, Promise}
 import scala.language.postfixOps
 import scala.sys.process.{Process, stringSeqToProcess}
 import scala.util.{Failure, Success}
@@ -28,7 +28,7 @@ import scala.util.{Failure, Success}
 trait ClientCommon {
   val logger: Logger = LoggerFactory.getLogger(this.getClass)
   implicit val system: ActorSystem = ActorSystem()
-  implicit val executionContext = system.dispatcher
+  implicit val executionContext: ExecutionContextExecutor = system.dispatcher
 
   val printSink: Sink[Message, Future[Done]] =
     Sink.foreach {

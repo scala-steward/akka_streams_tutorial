@@ -1,8 +1,8 @@
 package alpakka.sse_to_elasticsearch
 
-import io.circe._
-import io.circe.generic.auto._
-import io.circe.parser._
+import io.circe.*
+import io.circe.generic.auto.*
+import io.circe.parser.*
 import opennlp.tools.namefind.{NameFinderME, TokenNameFinderModel}
 import opennlp.tools.tokenize.{TokenizerME, TokenizerModel}
 import opennlp.tools.util.Span
@@ -13,15 +13,15 @@ import org.apache.pekko.http.scaladsl.Http
 import org.apache.pekko.http.scaladsl.model.HttpRequest
 import org.apache.pekko.http.scaladsl.model.sse.ServerSentEvent
 import org.apache.pekko.http.scaladsl.unmarshalling.Unmarshal
+import org.apache.pekko.stream.connectors.elasticsearch.*
 import org.apache.pekko.stream.connectors.elasticsearch.WriteMessage.createIndexMessage
-import org.apache.pekko.stream.connectors.elasticsearch._
 import org.apache.pekko.stream.connectors.elasticsearch.scaladsl.{ElasticsearchSink, ElasticsearchSource}
 import org.apache.pekko.stream.scaladsl.{Flow, RestartSource, Sink, Source}
 import org.apache.pekko.stream.{ActorAttributes, RestartSettings, Supervision}
 import org.opensearch.testcontainers.OpensearchContainer
 import org.slf4j.{Logger, LoggerFactory}
 import org.testcontainers.utility.DockerImageName
-import spray.json.DefaultJsonProtocol._
+import spray.json.DefaultJsonProtocol.*
 import spray.json.JsonFormat
 
 import java.io.FileInputStream
@@ -29,7 +29,7 @@ import java.net.URLEncoder
 import java.nio.file.Paths
 import java.time.{Instant, ZoneId}
 import scala.concurrent.Future
-import scala.concurrent.duration._
+import scala.concurrent.duration.*
 import scala.sys.process.{Process, stringSeqToProcess}
 import scala.util.control.NonFatal
 
@@ -123,7 +123,7 @@ object SSEtoElasticsearch extends App {
     )
 
 
-  import org.apache.pekko.http.scaladsl.unmarshalling.sse.EventStreamUnmarshalling._
+  import org.apache.pekko.http.scaladsl.unmarshalling.sse.EventStreamUnmarshalling.*
 
   val restartSettings = RestartSettings(1.second, 10.seconds, 0.2).withMaxRestarts(10, 1.minute)
   val restartSource = RestartSource.withBackoff(restartSettings) { () =>
@@ -137,13 +137,13 @@ object SSEtoElasticsearch extends App {
   }
 
   val parserFlow: Flow[ServerSentEvent, Change, NotUsed] = Flow[ServerSentEvent].map {
-    event: ServerSentEvent => {
+    serverSentEvent => {
 
       def isNamedBot(bot: Boolean, user: String): Boolean = {
         if (bot) user.toLowerCase().contains("bot") else false
       }
 
-      val cursor = parse(event.data).getOrElse(Json.Null).hcursor
+      val cursor = parse(serverSentEvent.data).getOrElse(Json.Null).hcursor
 
       val titleAsID = cursor.get[String]("title").toOption.getOrElse("")
       val timestamp: Long = cursor.get[Long]("timestamp").toOption.getOrElse(0)

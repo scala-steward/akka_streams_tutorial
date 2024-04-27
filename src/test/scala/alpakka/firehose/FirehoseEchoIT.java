@@ -61,9 +61,11 @@ public class FirehoseEchoIT {
         String os = System.getProperty("os.name").toLowerCase();
         String elasticsearchEndpoint = String.format("http://es-local.us-east-1.es.localhost.localstack.cloud:%s/_search", localStack.getMappedPort(LOCALSTACK_PORT));
         if (os.equals("mac os x")) {
-            Runtime.getRuntime().exec("open " + elasticsearchEndpoint);
+            String[] cmd = {"open", elasticsearchEndpoint};
+            Runtime.getRuntime().exec(cmd);
         } else if (os.equals("windows 10")) {
-            Runtime.getRuntime().exec(String.format("cmd /c start %s", elasticsearchEndpoint));
+            String[] cmd = {"cmd /c start", elasticsearchEndpoint};
+            Runtime.getRuntime().exec(cmd);
         } else {
             LOGGER.info("Please open a browser at: {}", elasticsearchEndpoint);
         }

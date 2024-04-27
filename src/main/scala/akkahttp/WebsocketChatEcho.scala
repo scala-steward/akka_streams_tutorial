@@ -2,15 +2,15 @@ package akkahttp
 
 import org.apache.pekko.http.scaladsl.Http
 import org.apache.pekko.http.scaladsl.model.StatusCodes
-import org.apache.pekko.http.scaladsl.model.ws._
-import org.apache.pekko.http.scaladsl.server.Directives._
+import org.apache.pekko.http.scaladsl.model.ws.*
+import org.apache.pekko.http.scaladsl.server.Directives.*
 import org.apache.pekko.http.scaladsl.server.Route
 import org.apache.pekko.stream.scaladsl.{BroadcastHub, Flow, Keep, MergeHub, Sink, Source}
 import org.apache.pekko.{Done, NotUsed}
 
-import scala.collection.parallel.CollectionConverters._
+import scala.collection.parallel.CollectionConverters.*
 import scala.concurrent.Future
-import scala.concurrent.duration._
+import scala.concurrent.duration.*
 /**
   * A simple WebSocket chat system using only akka streams with the help of MergeHub Source and BroadcastHub Sink
   * See also: [[WebsocketEcho]]
@@ -66,7 +66,7 @@ object WebsocketChatEcho extends App with ClientCommon {
         logger.info(s"Server received: $text")
         Future.successful(text)
       case TextMessage.Streamed(textStream) =>
-        textStream.runFold("")(_ + _)
+        textStream.runReduce(_ + _)
           .flatMap(Future.successful)
       }
       .via(Flow.fromSinkAndSourceCoupled(inSink, outSource))

@@ -6,8 +6,8 @@ import org.apache.pekko.actor.ActorSystem
 import org.apache.pekko.stream.Attributes
 import org.apache.pekko.stream.connectors.file.ArchiveMetadata
 import org.apache.pekko.stream.connectors.file.scaladsl.Archive
+import org.apache.pekko.stream.connectors.s3.*
 import org.apache.pekko.stream.connectors.s3.AccessStyle.PathAccessStyle
-import org.apache.pekko.stream.connectors.s3._
 import org.apache.pekko.stream.connectors.s3.scaladsl.S3
 import org.apache.pekko.stream.scaladsl.{FileIO, Keep, Sink, Source}
 import org.apache.pekko.util.ByteString
@@ -16,7 +16,7 @@ import software.amazon.awssdk.auth.credentials.{AwsBasicCredentials, StaticCrede
 
 import java.nio.file.{Path, Paths}
 import java.util.UUID
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContextExecutor, Future}
 import scala.util.{Failure, Success}
 
 /**
@@ -33,8 +33,8 @@ import scala.util.{Failure, Success}
   */
 class S3Echo(urlWithMappedPort: String = "", accessKey: String = "", secretKey: String = "") {
   val logger: Logger = LoggerFactory.getLogger(this.getClass)
-  implicit val system = ActorSystem("S3Echo")
-  implicit val executionContext = system.dispatcher
+  implicit val system: ActorSystem = ActorSystem("S3Echo")
+  implicit val executionContext: ExecutionContextExecutor = system.dispatcher
 
   private val resourceFileName = "63MB.pdf"
   private val archiveFileName = "archive.zip"

@@ -2,7 +2,8 @@ package sample.stream_actor_simple
 
 import org.apache.pekko.actor.{ActorSystem, Props}
 
-import scala.concurrent.duration._
+import scala.concurrent.ExecutionContextExecutor
+import scala.concurrent.duration.*
 
 /**
   * Inspired by:
@@ -11,7 +12,7 @@ import scala.concurrent.duration._
   */
 object EncapsulateStreamWithActor extends App {
   implicit val system: ActorSystem = ActorSystem()
-  implicit val executionContext = system.dispatcher
+  implicit val executionContext: ExecutionContextExecutor = system.dispatcher
 
   val actorRef = system.actorOf(Props(classOf[PrintMoreNumbers]))
   system.scheduler.scheduleOnce(10.seconds) {

@@ -12,10 +12,34 @@ import scala.concurrent.Future
 import scala.util.{Failure, Success}
 
 /**
-  * Same as: [[SplitWhen]] but with
-  * statefulMap instead of statefulMapConcat (= deprecated)
-  * and thus more concise
+  * Given a sorted stream of records e.g. from a file that has records sorted based on key
   *
+  * key, value
+  * 1,2
+  * 1,3
+  * 1,4
+  * 1,5
+  * 2,3  <--
+  * 2,4
+  * 2,5
+  * 3,4  <--
+  * 3,5
+  * 4,5  <--
+  *
+  * Create a new group and collect records while the record key is the same as before.
+  * When we encounter a changed key, emit the aggregation for the previous group and create a new group.
+  *
+  * Inspired by:
+  * https://discuss.lightbend.com/t/groupwhile-on-akka-streams/5592/3
+  *
+  * and by doc:
+  * https://doc.akka.io/docs/akka/current/stream/operators/Source-or-Flow/splitWhen.html
+  *
+  * Note that this implementation can be materialized many times because the
+  * stateful decision is done in statefulMapConcat, see discussion:
+  * https://discuss.lightbend.com/t/state-inside-of-flow-operators/5717
+  *
+  * SplitWhen2 uses statefulMap instead of statefulMapConcat (= deprecated)
   */
 object SplitWhen2 extends App {
   val logger: Logger = LoggerFactory.getLogger(this.getClass)

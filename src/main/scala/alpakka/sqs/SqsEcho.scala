@@ -3,7 +3,7 @@ package alpakka.sqs
 import com.github.pjfanning.pekkohttpspi.PekkoHttpClient
 import org.apache.commons.validator.routines.UrlValidator
 import org.apache.pekko.actor.ActorSystem
-import org.apache.pekko.stream.connectors.sqs._
+import org.apache.pekko.stream.connectors.sqs.*
 import org.apache.pekko.stream.connectors.sqs.scaladsl.{SqsAckSink, SqsPublishSink, SqsSource}
 import org.apache.pekko.stream.scaladsl.{Flow, Sink, Source}
 import org.slf4j.{Logger, LoggerFactory}
@@ -14,8 +14,8 @@ import software.amazon.awssdk.services.sqs.model.{CreateQueueRequest, DeleteQueu
 
 import java.net.URI
 import scala.collection.immutable
-import scala.concurrent.Await
 import scala.concurrent.duration.{DurationInt, SECONDS}
+import scala.concurrent.{Await, ExecutionContextExecutor}
 
 /**
   * Echo flow via a SQS standard queue:
@@ -36,13 +36,13 @@ import scala.concurrent.duration.{DurationInt, SECONDS}
   */
 class SqsEcho(urlWithMappedPort: URI = new URI(""), accessKey: String = "", secretKey: String = "", region: String = "") {
   val logger: Logger = LoggerFactory.getLogger(this.getClass)
-  implicit val system = ActorSystem("SqsEcho")
-  implicit val executionContext = system.dispatcher
+  implicit val system: ActorSystem = ActorSystem("SqsEcho")
+  implicit val executionContext: ExecutionContextExecutor = system.dispatcher
 
   val queueName = "mysqs-queue"
   private var queueUrl = ""
 
-  implicit val awsSqsClient =
+  implicit val awsSqsClient: SqsAsyncClient =
     if (new UrlValidator().isValid(urlWithMappedPort.toString)) {
       logger.info("Running against localStack on local container...")
       val credentialsProvider = StaticCredentialsProvider.create(AwsBasicCredentials.create(accessKey, secretKey))

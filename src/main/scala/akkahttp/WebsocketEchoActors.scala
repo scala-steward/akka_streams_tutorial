@@ -5,7 +5,7 @@ import org.apache.pekko.Done
 import org.apache.pekko.actor.{Actor, ActorRef, Props}
 import org.apache.pekko.http.scaladsl.Http
 import org.apache.pekko.http.scaladsl.model.ws.{BinaryMessage, Message, TextMessage}
-import org.apache.pekko.http.scaladsl.server.Directives._
+import org.apache.pekko.http.scaladsl.server.Directives.*
 import org.apache.pekko.http.scaladsl.server.Route
 import org.apache.pekko.stream.scaladsl.{Flow, Sink, Source}
 import org.apache.pekko.stream.{CompletionStrategy, OverflowStrategy}
@@ -96,7 +96,7 @@ object WebsocketEchoActors extends App with ClientCommon {
         bufferSize = 100,
         overflowStrategy = OverflowStrategy.dropHead)
         .mapMaterializedValue {
-          outSourceActorRef: ActorRef => {
+          outSourceActorRef => {
             chatRef ! Protocol.OpenConnection(outSourceActorRef, connectionId)
           }
         }

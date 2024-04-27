@@ -1,8 +1,8 @@
 package alpakka.amqp
 
 import org.apache.pekko.actor.ActorSystem
-import org.apache.pekko.stream.connectors.amqp._
-import org.apache.pekko.stream.connectors.amqp.scaladsl._
+import org.apache.pekko.stream.connectors.amqp.*
+import org.apache.pekko.stream.connectors.amqp.scaladsl.*
 import org.apache.pekko.stream.scaladsl.{Flow, Keep, RestartFlow, Sink, Source}
 import org.apache.pekko.stream.{KillSwitches, RestartSettings, ThrottleMode}
 import org.apache.pekko.util.ByteString
@@ -10,7 +10,7 @@ import org.apache.pekko.{Done, NotUsed}
 import org.slf4j.{Logger, LoggerFactory}
 import org.testcontainers.containers.RabbitMQContainer
 
-import scala.collection.parallel.CollectionConverters._
+import scala.collection.parallel.CollectionConverters.*
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{Future, Promise}
 import scala.sys.process.{Process, stringSeqToProcess}
@@ -104,7 +104,7 @@ object AmqpEcho extends App {
 
     // RPC server flow
     val rpcFlow: Flow[ReadResult, WriteMessage, NotUsed] = Flow[ReadResult]
-      .map { readResult: ReadResult =>
+      .map { readResult =>
         logger.info(s"RECEIVED on server envelope: ${readResult.envelope}")
         val output = s"Processed: ${readResult.bytes.utf8String}"
         // The on-the-fly created replyTo queue name is in the properties

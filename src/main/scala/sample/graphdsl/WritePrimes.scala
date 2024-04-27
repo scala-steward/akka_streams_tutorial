@@ -2,13 +2,14 @@ package sample.graphdsl
 
 import org.apache.pekko.NotUsed
 import org.apache.pekko.actor.ActorSystem
-import org.apache.pekko.stream._
-import org.apache.pekko.stream.scaladsl._
+import org.apache.pekko.stream.*
+import org.apache.pekko.stream.scaladsl.*
 import org.apache.pekko.util.ByteString
 
 import java.nio.file.Paths
 import java.util.concurrent.ThreadLocalRandom
-import scala.concurrent.duration._
+import scala.concurrent.ExecutionContextExecutor
+import scala.concurrent.duration.*
 import scala.util.{Failure, Success}
 
 /**
@@ -18,7 +19,7 @@ import scala.util.{Failure, Success}
   */
 object WritePrimes extends App {
     implicit val system: ActorSystem = ActorSystem()
-    implicit val ec = system.dispatcher
+  implicit val ec: ExecutionContextExecutor = system.dispatcher
 
     val maxRandomNumberSize = 100
   val primeSource: Source[Int, NotUsed] =
@@ -46,7 +47,7 @@ object WritePrimes extends App {
   // https://doc.akka.io/docs/akka/current/stream/stream-flows-and-basics.html
   val graph = GraphDSL.createGraph(slowSink, consoleSink)((_, _)) { implicit builder =>
     (slow, console) =>
-      import GraphDSL.Implicits._
+      import GraphDSL.Implicits.*
       val broadcastSplitter = builder.add(Broadcast[Int](2)) // the splitter - like a Unix tee
       primeSource ~> broadcastSplitter ~> sharedDoubler ~> slow // connect source to splitter, other side to slow sink (via sharedDoubler)
       broadcastSplitter ~> sharedDoubler ~> console // connect other side of splitter to console sink (via sharedDoubler)

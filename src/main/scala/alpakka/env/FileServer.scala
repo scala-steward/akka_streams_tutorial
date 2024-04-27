@@ -3,14 +3,14 @@ package alpakka.env
 import com.github.blemale.scaffeine.{Cache, Scaffeine}
 import org.apache.pekko.actor.ActorSystem
 import org.apache.pekko.http.scaladsl.Http
-import org.apache.pekko.http.scaladsl.model.StatusCodes._
-import org.apache.pekko.http.scaladsl.model.{HttpResponse, MediaTypes, StatusCodes, Uri}
-import org.apache.pekko.http.scaladsl.server.Directives.{logRequestResult, path, _}
+import org.apache.pekko.http.scaladsl.model.StatusCodes.*
+import org.apache.pekko.http.scaladsl.model.{HttpResponse, MediaTypes, StatusCodes}
+import org.apache.pekko.http.scaladsl.server.Directives.{logRequestResult, path, *}
 import org.apache.pekko.http.scaladsl.server.{ExceptionHandler, Route}
 import org.slf4j.{Logger, LoggerFactory}
 
 import java.io.File
-import scala.concurrent.duration._
+import scala.concurrent.duration.*
 import scala.util.{Failure, Success}
 
 /**
@@ -49,7 +49,7 @@ object FileServer extends App {
 
     val exceptionHandler = ExceptionHandler {
       case ex: RuntimeException =>
-        extractUri { uri: Uri =>
+        extractUri { uri =>
           logger.error(s"Request to $uri could not be handled normally message: ${ex.getMessage}")
           //cache.invalidate(id)
           complete(HttpResponse(InternalServerError, entity = "Runtime ex occurred"))

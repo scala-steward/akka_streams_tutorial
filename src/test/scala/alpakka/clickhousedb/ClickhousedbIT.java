@@ -15,6 +15,8 @@ import scala.jdk.javaapi.FutureConverters;
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -80,10 +82,10 @@ public class ClickhousedbIT {
 
     @Test
     @Order(1)
-    void testHealthHTTP() throws IOException {
+    void testHealthHTTP() throws IOException, URISyntaxException {
         // Doc: https://clickhouse.com/docs/en/interfaces/http
         Integer httpPort = clickhouseDBContainer.getMappedPort(CLICKHOUSEDB_HTTP_PORT);
-        URL url = new URL("http://localhost:" + httpPort + "/ping");
+        URL url = new URI("http://localhost:" + httpPort + "/ping").toURL();
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
         con.setRequestMethod("GET");
         assertThat(con.getResponseCode()).isEqualTo(200);
@@ -210,9 +212,11 @@ public class ClickhousedbIT {
         String os = System.getProperty("os.name").toLowerCase();
         String tabuxURL = String.format("http://localhost:%s", port);
         if (os.equals("mac os x")) {
-            Runtime.getRuntime().exec("open " + tabuxURL);
+            String[] cmd = {"open", tabuxURL};
+            Runtime.getRuntime().exec(cmd);
         } else if (os.equals("windows 10")) {
-            Runtime.getRuntime().exec(String.format("cmd /c start %s", tabuxURL));
+            String[] cmd = {"cmd /c start", tabuxURL};
+            Runtime.getRuntime().exec(cmd);
         } else {
             LOGGER.info("Please open a browser at: {}", tabuxURL);
         }

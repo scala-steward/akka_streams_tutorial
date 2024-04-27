@@ -6,7 +6,8 @@ import org.apache.pekko.stream.scaladsl.Source
 
 import java.util.concurrent.ThreadLocalRandom
 import scala.annotation.tailrec
-import scala.concurrent.duration._
+import scala.concurrent.ExecutionContextExecutor
+import scala.concurrent.duration.*
 import scala.language.postfixOps
 
 /**
@@ -19,7 +20,7 @@ import scala.language.postfixOps
 
 object CalculateMedian extends App {
   implicit val system: ActorSystem = ActorSystem()
-  implicit val ec = system.dispatcher
+  implicit val ec: ExecutionContextExecutor = system.dispatcher
 
   val maxRandomNumber = 100
   val source = Source.fromIterator(() => Iterator.continually(ThreadLocalRandom.current().nextDouble(maxRandomNumber)))

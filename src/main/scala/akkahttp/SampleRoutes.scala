@@ -7,15 +7,15 @@ import org.apache.pekko.http.scaladsl.Http
 import org.apache.pekko.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import org.apache.pekko.http.scaladsl.model.StatusCodes.InternalServerError
 import org.apache.pekko.http.scaladsl.model.{ContentTypes, HttpResponse, StatusCodes}
-import org.apache.pekko.http.scaladsl.server.Directives._
-import org.apache.pekko.http.scaladsl.server._
+import org.apache.pekko.http.scaladsl.server.*
+import org.apache.pekko.http.scaladsl.server.Directives.*
 import org.apache.pekko.util.Timeout
 import org.slf4j.{Logger, LoggerFactory}
 import spray.json.DefaultJsonProtocol
 
 import java.nio.file.Paths
 import scala.concurrent.Await
-import scala.concurrent.duration._
+import scala.concurrent.duration.*
 import scala.sys.process.{Process, stringSeqToProcess}
 import scala.util.{Failure, Success}
 
@@ -33,7 +33,7 @@ object SampleRoutes extends App with DefaultJsonProtocol with SprayJsonSupport {
   val logger: Logger = LoggerFactory.getLogger(this.getClass)
   implicit val system: ActorSystem = ActorSystem()
 
-  import spray.json._
+  import spray.json.*
   import system.dispatcher
 
   val faultyActor = system.actorOf(Props[FaultyActor](), "FaultyActor")
@@ -112,7 +112,7 @@ object SampleRoutes extends App with DefaultJsonProtocol with SprayJsonSupport {
   // curl -X GET localhost:6002/acceptAll -H "Accept: text/plain"
   // curl -X GET localhost:6002/acceptAll -H "Accept: text/xxx"
   val acceptAll: Route = get {
-    path("acceptAll") { ctx: RequestContext =>
+    path("acceptAll") { ctx =>
       // withAcceptAll: Remove/Ignore accept headers and always return application/json
       ctx.withAcceptAll.complete("""{ "foo": "bar" }""".parseJson)
     }

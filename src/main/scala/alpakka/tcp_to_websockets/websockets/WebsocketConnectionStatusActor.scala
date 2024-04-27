@@ -1,7 +1,9 @@
 package alpakka.tcp_to_websockets.websockets
 
 import alpakka.tcp_to_websockets.websockets.WebsocketConnectionStatusActor.{Connected, ConnectionStatus, Terminated}
-import org.apache.pekko.actor.{Actor, ActorLogging, Props}
+import org.apache.pekko.actor.{Actor, ActorLogging, ActorSystem, Props}
+
+import scala.concurrent.ExecutionContextExecutor
 
 
 object WebsocketConnectionStatusActor {
@@ -16,8 +18,8 @@ object WebsocketConnectionStatusActor {
 
 class WebsocketConnectionStatusActor(id: String, endpoint: String)
   extends Actor with ActorLogging {
-  implicit private val system = context.system
-  implicit private val executionContext = system.dispatcher
+  implicit private val system: ActorSystem = context.system
+  implicit private val executionContext: ExecutionContextExecutor = system.dispatcher
 
   var isConnected = false
 

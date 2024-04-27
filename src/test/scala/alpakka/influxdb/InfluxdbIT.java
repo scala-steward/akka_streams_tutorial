@@ -101,9 +101,11 @@ public class InfluxdbIT {
         String os = System.getProperty("os.name").toLowerCase();
         String influxURL = String.format("http://localhost:%s", influxDBContainer.getMappedPort(INFLUXDB_PORT));
         if (os.equals("mac os x")) {
-            Runtime.getRuntime().exec("open " + influxURL);
+            String[] cmd = {"open", influxURL};
+            Runtime.getRuntime().exec(cmd);
         } else if (os.equals("windows 10")) {
-            Runtime.getRuntime().exec(String.format("cmd /c start %s", influxURL));
+            String[] cmd = {"cmd /c start", influxURL};
+            Runtime.getRuntime().exec(cmd);
         } else {
             LOGGER.info("Please open a browser at: {}", influxURL);
         }

@@ -2,15 +2,15 @@ package akkahttp
 
 import akkahttp.ReverseProxy.Mode.Mode
 import com.typesafe.config.{ConfigFactory, ConfigValueFactory}
-import io.circe._
+import io.circe.*
 import org.apache.pekko.actor.ActorSystem
-import org.apache.pekko.http.scaladsl.Http
+import org.apache.pekko.http.scaladsl.model.*
 import org.apache.pekko.http.scaladsl.model.Uri.Authority
-import org.apache.pekko.http.scaladsl.model._
 import org.apache.pekko.http.scaladsl.model.headers.{Host, RawHeader}
-import org.apache.pekko.http.scaladsl.server.Directives._
+import org.apache.pekko.http.scaladsl.server.Directives.*
 import org.apache.pekko.http.scaladsl.server.Route
 import org.apache.pekko.http.scaladsl.settings.ServerSettings
+import org.apache.pekko.http.scaladsl.{Http, HttpExt}
 import org.apache.pekko.pattern.CircuitBreaker
 import org.apache.pekko.stream.ThrottleMode
 import org.apache.pekko.stream.scaladsl.{Sink, Source}
@@ -20,7 +20,7 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicInteger
 import scala.collection.parallel.CollectionConverters.ImmutableIterableIsParallelizable
 import scala.concurrent.duration.DurationInt
-import scala.concurrent.{ExecutionContext, Future, Promise, TimeoutException}
+import scala.concurrent.*
 import scala.util.{Failure, Success}
 
 /**
@@ -60,9 +60,9 @@ object ReverseProxy extends App {
   val logger: Logger = LoggerFactory.getLogger(this.getClass)
   implicit val system: ActorSystem = ActorSystem()
 
-  implicit val executionContext = system.dispatcher
+  implicit val executionContext: ExecutionContextExecutor = system.dispatcher
 
-  implicit val http = Http(system)
+  implicit val http: HttpExt = Http(system)
 
   val circuitBreakers = new ConcurrentHashMap[String, CircuitBreaker]()
   val requestCounter = new AtomicInteger(0)

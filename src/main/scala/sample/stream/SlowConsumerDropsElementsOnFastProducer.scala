@@ -2,12 +2,12 @@ package sample.stream
 
 import org.apache.pekko.NotUsed
 import org.apache.pekko.actor.ActorSystem
-import org.apache.pekko.stream._
-import org.apache.pekko.stream.scaladsl._
+import org.apache.pekko.stream.*
+import org.apache.pekko.stream.scaladsl.*
 import org.slf4j.{Logger, LoggerFactory}
 
 import java.time.{Instant, ZoneId, ZonedDateTime}
-import scala.concurrent.duration._
+import scala.concurrent.duration.*
 
 case class SourceEvent(id: String)
 
@@ -98,7 +98,7 @@ object SlowConsumerDropsElementsOnFastProducer extends App {
     Source(1 to 100)
       .throttle(10, 1.second, 1, ThrottleMode.shaping)
       // If we parallelize here, we get a hang, when running without droppyStream
-      .mapAsync(1) { i: Int =>
+      .mapAsync(1) { i =>
         logger.info(s"Producing event: $i")
         offerToSourceQueue(SourceEvent(s"2-$i"))
       }

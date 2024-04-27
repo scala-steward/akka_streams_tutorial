@@ -5,7 +5,8 @@ import org.apache.pekko.actor.ActorSystem
 import org.apache.pekko.stream.ThrottleMode
 import org.apache.pekko.stream.scaladsl.{Keep, PartitionHub, RunnableGraph, Source}
 
-import scala.concurrent.duration._
+import scala.concurrent.ExecutionContextExecutor
+import scala.concurrent.duration.*
 
 /**
   * Inspired by:
@@ -18,7 +19,7 @@ import scala.concurrent.duration._
   */
 object PartitionHubWithDynamicSinks extends App {
   implicit val system: ActorSystem = ActorSystem()
-  implicit val ec = system.dispatcher
+  implicit val ec: ExecutionContextExecutor = system.dispatcher
 
   val producer = Source.tick(1.second, 100.millis, "message").zipWith(Source(1 to 100))((a, b) => s"$a-$b")
 

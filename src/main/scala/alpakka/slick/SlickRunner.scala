@@ -2,8 +2,8 @@ package alpakka.slick
 
 import com.typesafe.config.{ConfigFactory, ConfigValueFactory}
 import org.apache.pekko.actor.ActorSystem
-import org.apache.pekko.stream.connectors.slick.scaladsl._
-import org.apache.pekko.stream.scaladsl._
+import org.apache.pekko.stream.connectors.slick.scaladsl.*
+import org.apache.pekko.stream.scaladsl.*
 import org.slf4j.{Logger, LoggerFactory}
 import slick.jdbc.{GetResult, ResultSetConcurrency, ResultSetType}
 
@@ -35,7 +35,7 @@ class SlickRunner(urlWithMappedPort: String) {
 
   implicit val session: SlickSession = SlickSession.forConfig("slick-postgres", tweakedConf)
 
-  import session.profile.api._
+  import session.profile.api.*
 
   case class User(id: Int, name: String)
 
@@ -47,7 +47,7 @@ class SlickRunner(urlWithMappedPort: String) {
     def * = (id, name)
   }
 
-  implicit val getUserResult = GetResult(r => User(r.nextInt(), r.nextString()))
+  implicit val getUserResult: AnyRef with GetResult[User] = GetResult(r => User(r.nextInt(), r.nextString()))
 
   def insertUser(user: User): DBIO[Int] =
     sqlu"INSERT INTO public.users VALUES(${user.id}, ${user.name})"

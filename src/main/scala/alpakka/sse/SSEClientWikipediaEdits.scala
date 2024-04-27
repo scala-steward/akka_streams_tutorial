@@ -1,7 +1,7 @@
 package alpakka.sse
 
-import io.circe._
-import io.circe.parser._
+import io.circe.*
+import io.circe.parser.*
 import org.apache.pekko.NotUsed
 import org.apache.pekko.actor.ActorSystem
 import org.apache.pekko.http.scaladsl.Http
@@ -14,8 +14,8 @@ import org.slf4j.{Logger, LoggerFactory}
 
 import java.time.{Instant, ZoneId}
 import scala.concurrent.Future
-import scala.concurrent.duration._
-import scala.sys.process._
+import scala.concurrent.duration.*
+import scala.sys.process.*
 import scala.util.control.NonFatal
 
 case class Change(timestamp: Long, serverName: String, user: String, cmdType: String, isBot: Boolean, isNamedBot: Boolean, lengthNew: Int = 0, lengthOld: Int = 0) {
@@ -63,16 +63,16 @@ object SSEClientWikipediaEdits extends App {
         retryDelay = 1.second
       )
 
-    val printSink = Sink.foreach[Change] { each: Change => logger.info(each.toString()) }
+    val printSink = Sink.foreach[Change] { each => logger.info(each.toString()) }
 
     val parserFlow: Flow[ServerSentEvent, Change, NotUsed] = Flow[ServerSentEvent].map {
-      event: ServerSentEvent => {
+      serverSentEvent => {
 
         def isNamedBot(bot: Boolean, user: String): Boolean = {
           if (bot) user.toLowerCase().contains("bot") else false
         }
 
-        val cursor = parse(event.data).getOrElse(Json.Null).hcursor
+        val cursor = parse(serverSentEvent.data).getOrElse(Json.Null).hcursor
         val timestamp: Long = cursor.get[Long]("timestamp").toOption.getOrElse(0)
         val serverName = cursor.get[String]("server_name").toOption.getOrElse("")
         val user = cursor.get[String]("user").toOption.getOrElse("")

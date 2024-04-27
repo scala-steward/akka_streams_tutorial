@@ -1,11 +1,12 @@
 package alpakka.tcp_to_websockets.websockets
 
-import alpakka.tcp_to_websockets.websockets.WebsocketClientActor._
+import alpakka.tcp_to_websockets.websockets.WebsocketClientActor.*
 import org.apache.commons.lang3.exception.ExceptionUtils
-import org.apache.pekko.actor.{Actor, ActorLogging, ActorRef, Props}
+import org.apache.pekko.actor.{Actor, ActorLogging, ActorRef, ActorSystem, Props}
 import org.apache.pekko.http.scaladsl.model.StatusCode
 
-import scala.concurrent.duration._
+import scala.concurrent.ExecutionContextExecutor
+import scala.concurrent.duration.*
 
 
 case class ConnectionException(cause: String) extends RuntimeException
@@ -25,8 +26,8 @@ object WebsocketClientActor {
 
 class WebsocketClientActor(id: String, endpoint: String, websocketConnectionStatusActor: ActorRef)
   extends Actor with ActorLogging {
-  implicit private val system = context.system
-  implicit private val executionContext = system.dispatcher
+  implicit private val system: ActorSystem = context.system
+  implicit private val executionContext: ExecutionContextExecutor = system.dispatcher
 
   val webSocketClient = WebSocketClient(id, endpoint, self)
 

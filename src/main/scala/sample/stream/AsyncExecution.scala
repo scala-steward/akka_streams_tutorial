@@ -36,7 +36,7 @@ object AsyncExecution extends App {
       .withAttributes(ActorAttributes.dispatcher("custom-dispatcher-for-blocking"))
 
   def sinkBlocking: Sink[Int, Future[Done]] =
-    Sink.foreach { index: Int =>
+    Sink.foreach { (index: Int) =>
       Thread.sleep(2000)
       logger.info(s"Slow sink processing element $index by ${Thread.currentThread().getName}")
     }

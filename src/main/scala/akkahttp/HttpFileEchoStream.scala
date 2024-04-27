@@ -5,19 +5,19 @@ import org.apache.pekko.actor.ActorSystem
 import org.apache.pekko.http.scaladsl.Http
 import org.apache.pekko.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import org.apache.pekko.http.scaladsl.marshalling.Marshal
-import org.apache.pekko.http.scaladsl.model._
-import org.apache.pekko.http.scaladsl.server.Directives.{complete, logRequestResult, path, _}
+import org.apache.pekko.http.scaladsl.model.*
+import org.apache.pekko.http.scaladsl.server.Directives.{complete, logRequestResult, path, *}
 import org.apache.pekko.http.scaladsl.server.Route
 import org.apache.pekko.http.scaladsl.server.directives.FileInfo
 import org.apache.pekko.http.scaladsl.unmarshalling.Unmarshal
 import org.apache.pekko.stream.scaladsl.{FileIO, Keep, Sink, Source}
 import org.apache.pekko.stream.{OverflowStrategy, QueueOfferResult, ThrottleMode}
-import spray.json.DefaultJsonProtocol
+import spray.json.{DefaultJsonProtocol, RootJsonFormat}
 
 import java.io.File
 import java.nio.file.Paths
 import java.time.LocalTime
-import scala.concurrent.duration._
+import scala.concurrent.duration.*
 import scala.concurrent.{Await, Future, Promise}
 import scala.util.{Failure, Success}
 
@@ -43,7 +43,7 @@ object HttpFileEchoStream extends App with DefaultJsonProtocol with SprayJsonSup
 
   final case class FileHandle(fileName: String, absolutePath: String, length: Long = 0)
 
-  implicit def fileInfoFormat = jsonFormat3(FileHandle)
+  implicit def fileInfoFormat: RootJsonFormat[FileHandle] = jsonFormat3(FileHandle)
 
   val resourceFileName = "testfile.jpg"
   val (address, port) = ("127.0.0.1", 6000)
@@ -78,7 +78,7 @@ object HttpFileEchoStream extends App with DefaultJsonProtocol with SprayJsonSup
       } ~
         path("download") {
           get {
-            entity(as[FileHandle]) { fileHandle: FileHandle =>
+            entity(as[FileHandle]) { fileHandle =>
               println(s"Server: Received download request for: ${fileHandle.fileName}")
 
               // Activate to simulate rnd server ex during download
@@ -139,7 +139,7 @@ object HttpFileEchoStream extends App with DefaultJsonProtocol with SprayJsonSup
 
 
     def createDownloadRequest(fileToDownload: FileHandle): Future[HttpRequest] = {
-      Marshal(fileToDownload).to[RequestEntity].map { entity: MessageEntity =>
+      Marshal(fileToDownload).to[RequestEntity].map { entity =>
         val target = Uri(s"http://$address:$port").withPath(org.apache.pekko.http.scaladsl.model.Uri.Path("/download"))
         HttpRequest(HttpMethods.GET, uri = target, entity = entity)
       }

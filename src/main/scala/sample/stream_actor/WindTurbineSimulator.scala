@@ -1,8 +1,10 @@
 package sample.stream_actor
 
-import org.apache.pekko.actor.{Actor, ActorLogging, Props}
+import org.apache.pekko.actor.{Actor, ActorLogging, ActorSystem, Props}
 import org.apache.pekko.http.scaladsl.model.StatusCode
-import sample.stream_actor.WindTurbineSimulator._
+import sample.stream_actor.WindTurbineSimulator.*
+
+import scala.concurrent.ExecutionContextExecutor
 
 case class WindTurbineSimulatorException(id: String) extends RuntimeException
 
@@ -25,8 +27,8 @@ object WindTurbineSimulator {
 
 class WindTurbineSimulator(id: String, endpoint: String)
   extends Actor with ActorLogging {
-  implicit private val system = context.system
-  implicit private val executionContext = system.dispatcher
+  implicit private val system: ActorSystem = context.system
+  implicit private val executionContext: ExecutionContextExecutor = system.dispatcher
 
   val webSocketClient = WebSocketClient(id, endpoint, self)
 

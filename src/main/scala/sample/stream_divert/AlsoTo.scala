@@ -1,7 +1,7 @@
 package sample.stream_divert
 
 import org.apache.pekko.actor.ActorSystem
-import org.apache.pekko.event.Logging
+import org.apache.pekko.event.{Logging, LoggingAdapter}
 import org.apache.pekko.stream.Attributes
 import org.apache.pekko.stream.scaladsl.{Flow, Sink, Source}
 
@@ -17,17 +17,17 @@ import org.apache.pekko.stream.scaladsl.{Flow, Sink, Source}
 
 object AlsoTo extends App {
   implicit val system: ActorSystem = ActorSystem()
-  implicit val adapter = Logging(system, this.getClass)
+  implicit val adapter: LoggingAdapter = Logging(system, this.getClass)
 
   import system.dispatcher
 
   val source = Source(1 to 10)
 
-  val sink = Sink.foreach { x: Int => adapter.log(Logging.InfoLevel, s" --> Element: $x reached sink") }
+  val sink = Sink.foreach((value: Int) => adapter.log(Logging.InfoLevel, s" --> Element: $value reached sink"))
 
-  def sinkBlocking = Sink.foreach { x: Int =>
+  def sinkBlocking = Sink.foreach { (value: Int) =>
     Thread.sleep(1000)
-    adapter.log(Logging.InfoLevel, s" --> Element: $x logged in alsoTo sinkBlocking by ${Thread.currentThread().getName}")
+    adapter.log(Logging.InfoLevel, s" --> Element: $value logged in alsoTo sinkBlocking by ${Thread.currentThread().getName}")
   }
 
   val flow = Flow[Int]

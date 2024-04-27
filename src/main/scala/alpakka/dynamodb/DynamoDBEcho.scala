@@ -15,21 +15,21 @@ import software.amazon.awssdk.core.retry.backoff.BackoffStrategy
 import software.amazon.awssdk.core.retry.conditions.RetryCondition
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.dynamodb.DynamoDbAsyncClient
-import software.amazon.awssdk.services.dynamodb.model._
+import software.amazon.awssdk.services.dynamodb.model.*
 
 import java.net.URI
 import java.util
 import java.util.UUID
-import scala.concurrent.Future
-import scala.jdk.CollectionConverters._
+import scala.concurrent.{ExecutionContextExecutor, Future}
+import scala.jdk.CollectionConverters.*
 import scala.util.Try
 
 
 class DynamoDBEcho(urlWithMappedPort: URI, accessKey: String, secretKey: String, region: String) {
   private val logger = LoggerFactory.getLogger(this.getClass)
 
-  implicit val system = ActorSystem("DynamoDBEcho")
-  implicit val executionContext = system.dispatcher
+  implicit val system: ActorSystem = ActorSystem("DynamoDBEcho")
+  implicit val executionContext: ExecutionContextExecutor = system.dispatcher
 
   private val testTableName = "testTable"
 

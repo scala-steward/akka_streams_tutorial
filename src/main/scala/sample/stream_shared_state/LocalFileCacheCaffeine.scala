@@ -16,7 +16,7 @@ import java.nio.file.attribute.BasicFileAttributes
 import java.nio.file.{Files, Path, Paths}
 import java.util
 import java.util.concurrent.ThreadLocalRandom
-import scala.concurrent.duration._
+import scala.concurrent.duration.*
 import scala.concurrent.{Future, Promise}
 import scala.util.control.NonFatal
 
@@ -77,7 +77,7 @@ object LocalFileCacheCaffeine {
 
   // Sync loading for now
   val loadedResults: util.List[Path] = new FileLister().run(localFileCache.toFile)
-  loadedResults.forEach { path: Path =>
+  loadedResults.forEach { path =>
     val lastAccessTime = Files.readAttributes(path, classOf[BasicFileAttributes]).lastAccessTime
     logger.debug(s"Add file: ${path.toFile.getName} with lastAccessTime: $lastAccessTime}")
     cache.put(path.toFile.getName.dropRight(4).toInt, path)
@@ -128,7 +128,7 @@ object LocalFileCacheCaffeine {
       }
 
     val faultyDownstreamFlow: Flow[Message, Message, NotUsed] = Flow[Message]
-      .map { message: Message =>
+      .map { message =>
         if (message.group == 0) {
           // Force an update (= replacement of value) to extend time in cache. evictionTimeOnError will be used
           logger.info(s"TRACE_ID: ${message.id} extend eviction time for message in group: ${message.group}")

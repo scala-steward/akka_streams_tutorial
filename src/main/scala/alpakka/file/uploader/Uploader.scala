@@ -3,9 +3,9 @@ package alpakka.file.uploader
 import org.apache.pekko.actor.ActorSystem
 import org.apache.pekko.http.scaladsl.Http
 import org.apache.pekko.http.scaladsl.marshalling.Marshal
+import org.apache.pekko.http.scaladsl.model.*
 import org.apache.pekko.http.scaladsl.model.headers.RawHeader
-import org.apache.pekko.http.scaladsl.model._
-import org.apache.pekko.http.scaladsl.server.Directives.{complete, logRequestResult, path, _}
+import org.apache.pekko.http.scaladsl.server.Directives.{complete, logRequestResult, path, *}
 import org.apache.pekko.http.scaladsl.server.Route
 import org.apache.pekko.http.scaladsl.server.directives.FileInfo
 import org.apache.pekko.http.scaladsl.settings.ConnectionPoolSettings
@@ -13,8 +13,8 @@ import org.apache.pekko.stream.scaladsl.FileIO
 import org.slf4j.{Logger, LoggerFactory}
 
 import java.io.File
-import scala.concurrent.duration._
-import scala.concurrent.{Await, Future}
+import scala.concurrent.duration.*
+import scala.concurrent.{Await, ExecutionContextExecutor, Future}
 import scala.util.{Failure, Success}
 
 /**
@@ -25,8 +25,8 @@ import scala.util.{Failure, Success}
   */
 class Uploader(system: ActorSystem) {
   val logger: Logger = LoggerFactory.getLogger(this.getClass)
-  implicit val systemImpl = system
-  implicit val executionContext = system.dispatcher
+  implicit val systemImpl: ActorSystem = system
+  implicit val executionContext: ExecutionContextExecutor = system.dispatcher
 
   var serverBinding: Future[Http.ServerBinding] = _
 

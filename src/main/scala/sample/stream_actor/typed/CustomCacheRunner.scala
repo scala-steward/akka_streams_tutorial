@@ -1,14 +1,14 @@
 package sample.stream_actor.typed
 
 import org.apache.pekko.actor.typed.ActorSystem
-import org.apache.pekko.actor.typed.scaladsl.AskPattern._
+import org.apache.pekko.actor.typed.scaladsl.AskPattern.*
 import org.apache.pekko.stream.ThrottleMode
 import org.apache.pekko.stream.scaladsl.{Sink, Source}
 import org.apache.pekko.util.Timeout
 import sample.stream_actor.typed.CustomCache.{AddDevices, CacheRequests, CacheResponses, CachedDevices}
 
-import scala.concurrent.Future
-import scala.concurrent.duration._
+import scala.concurrent.duration.*
+import scala.concurrent.{ExecutionContextExecutor, Future}
 
 /** Use typed actor [[CustomCache]] to show shared state:
   *  - Request-Response with ask from outside (= a stream)
@@ -22,8 +22,8 @@ import scala.concurrent.duration._
   */
 object CustomCacheRunner extends App {
   // the system is also the top level actor ref
-  implicit val cache = ActorSystem[CacheRequests](CustomCache.empty, "CustomCache")
-  implicit val ec = cache.executionContext
+  implicit val cache: ActorSystem[CacheRequests] = ActorSystem[CacheRequests](CustomCache.empty, "CustomCache")
+  implicit val ec: ExecutionContextExecutor = cache.executionContext
   implicit val timeout: Timeout = 5.seconds
 
   //Request-Response with ask

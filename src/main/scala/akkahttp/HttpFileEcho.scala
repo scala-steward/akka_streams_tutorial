@@ -4,20 +4,20 @@ import org.apache.pekko.actor.ActorSystem
 import org.apache.pekko.http.scaladsl.Http
 import org.apache.pekko.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import org.apache.pekko.http.scaladsl.marshalling.Marshal
-import org.apache.pekko.http.scaladsl.model._
-import org.apache.pekko.http.scaladsl.server.Directives.{complete, logRequestResult, path, _}
+import org.apache.pekko.http.scaladsl.model.*
+import org.apache.pekko.http.scaladsl.server.Directives.{complete, logRequestResult, path, *}
 import org.apache.pekko.http.scaladsl.server.Route
 import org.apache.pekko.http.scaladsl.server.directives.FileInfo
 import org.apache.pekko.http.scaladsl.unmarshalling.Unmarshal
 import org.apache.pekko.stream.RestartSettings
 import org.apache.pekko.stream.scaladsl.{Compression, FileIO, RestartSource, Sink, Source}
-import spray.json.DefaultJsonProtocol
+import spray.json.{DefaultJsonProtocol, RootJsonFormat}
 
 import java.io.File
 import java.nio.file.Paths
 import java.time.LocalTime
-import scala.collection.parallel.CollectionConverters._
-import scala.concurrent.duration._
+import scala.collection.parallel.CollectionConverters.*
+import scala.concurrent.duration.*
 import scala.concurrent.{Await, Future}
 import scala.sys.process.{Process, stringSeqToProcess}
 import scala.util.{Failure, Success}
@@ -26,7 +26,7 @@ trait JsonProtocol extends DefaultJsonProtocol with SprayJsonSupport {
 
   case class FileHandle(fileName: String, absolutePath: String, length: Long)
 
-  implicit def fileInfoFormat = jsonFormat3(FileHandle)
+  implicit def fileInfoFormat: RootJsonFormat[FileHandle] = jsonFormat3(FileHandle)
 }
 
 /**
@@ -94,7 +94,7 @@ object HttpFileEcho extends App with JsonProtocol {
       } ~
         path("download") {
           get {
-            entity(as[FileHandle]) { fileHandle: FileHandle =>
+            entity(as[FileHandle]) { fileHandle =>
               println(s"Server received download request for: ${fileHandle.fileName}")
 
               // Activate to simulate rnd server ex during download and thus provoke retry on client

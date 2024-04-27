@@ -15,11 +15,11 @@ import software.amazon.awssdk.auth.credentials.{AwsBasicCredentials, StaticCrede
 import software.amazon.awssdk.core.SdkBytes
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.firehose.FirehoseAsyncClient
-import software.amazon.awssdk.services.firehose.model.{PutRecordBatchResponseEntry, Record => RecordFirehose}
+import software.amazon.awssdk.services.firehose.model.{PutRecordBatchResponseEntry, Record as RecordFirehose}
 
 import java.net.URI
 import scala.concurrent.duration.DurationInt
-import scala.concurrent.{Await, Future}
+import scala.concurrent.{Await, ExecutionContextExecutor, Future}
 import scala.util.{Failure, Success}
 
 
@@ -38,8 +38,8 @@ import scala.util.{Failure, Success}
   */
 class FirehoseEcho(urlWithMappedPort: URI = new URI("http://localhost:4566"), accessKey: String = "accessKey", secretKey: String = "secretKey", region: String = "us-east-1") {
   val logger: Logger = LoggerFactory.getLogger(this.getClass)
-  implicit val system = ActorSystem("FirehoseEcho")
-  implicit val executionContext = system.dispatcher
+  implicit val system: ActorSystem = ActorSystem("FirehoseEcho")
+  implicit val executionContext: ExecutionContextExecutor = system.dispatcher
 
   val firehoseStreamName = "activity-to-elasticsearch-local"
   val s3BucketName = "kinesis-activity-backup-local"
