@@ -1,11 +1,13 @@
 package akkahttp.oidc
 
 import dasniko.testcontainers.keycloak.KeycloakContainer
+import io.circe.parser.decode
+import io.circe.syntax.*
 import org.apache.pekko.actor.ActorSystem
 import org.apache.pekko.http.scaladsl.Http
 import org.apache.pekko.http.scaladsl.model.headers.{HttpChallenge, OAuth2BearerToken}
-import org.apache.pekko.http.scaladsl.model.{ContentTypes, HttpEntity, HttpRequest, StatusCodes}
-import org.apache.pekko.http.scaladsl.server.Directives._
+import org.apache.pekko.http.scaladsl.model.*
+import org.apache.pekko.http.scaladsl.server.Directives.*
 import org.apache.pekko.http.scaladsl.server.{AuthenticationFailedRejection, Directive1, RejectionHandler, Route}
 import org.apache.pekko.http.scaladsl.unmarshalling.Unmarshal
 import org.apache.pekko.util.Timeout
@@ -30,6 +32,7 @@ import scala.concurrent.{ExecutionContextExecutor, Future}
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 import scala.sys.process.{Process, stringSeqToProcess}
 import scala.util.{Failure, Success}
+
 
 /**
   * A "one-click" Keycloak OIDC server with pekko-http frontend
@@ -167,7 +170,14 @@ object OIDCKeycloak extends App with CORSHandler with JsonSupport {
 
     val publicKeys: Future[Map[String, PublicKey]] =
       Http().singleRequest(HttpRequest(uri = keycloakDeployment.getJwksUrl)).flatMap(response => {
-        Unmarshal(response).to[Keys].map(_.keys.map(k => (k.kid, generateKey(k))).toMap)
+        val json = Unmarshal(response).to[String]
+        val keys = json.map { jsonString =>
+          decode[Keys](jsonString) match {
+            case Right(keys) => keys
+            case Left(error) => throw new RuntimeException(error.getMessage)
+          }
+        }
+        keys.map(_.keys.map(k => (k.kid, generateKey(k))).toMap)
       })
 
 
@@ -213,7 +223,7 @@ object OIDCKeycloak extends App with CORSHandler with JsonSupport {
               // To have "real data": Read 'UserRepresentation' from Keycloak via the admin client and then strip down
               val usersOrig = adminClient.realm("test").users().list().asScala
               val usersBasic = UsersKeycloak(usersOrig.collect(each => UserKeycloak(Option(each.getFirstName), Option(each.getLastName), Option(each.getEmail))).toSeq)
-              complete(usersBasic)
+              complete(HttpResponse(StatusCodes.OK, entity = usersBasic.asJson.noSpaces))
             }
           }
         }

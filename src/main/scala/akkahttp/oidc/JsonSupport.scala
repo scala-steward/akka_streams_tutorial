@@ -1,20 +1,27 @@
 package akkahttp.oidc
 
-import org.apache.pekko.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
-import spray.json.DefaultJsonProtocol.*
-import spray.json.RootJsonFormat
+import io.circe.*
+import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
 
-trait JsonSupport extends SprayJsonSupport {
+trait JsonSupport {
 
   case class Keys(keys: Seq[KeyData])
   case class KeyData(kid: String, n: String, e: String)
 
-  implicit val keyDataFormat: RootJsonFormat[KeyData] = jsonFormat3(KeyData)
-  implicit val keysFormat: RootJsonFormat[Keys] = jsonFormat1(Keys)
+  implicit val keyDataEncoder: Encoder[KeyData] = deriveEncoder[KeyData]
+  implicit val keyDataDecoder: Decoder[KeyData] = deriveDecoder[KeyData]
+
+  implicit val keysEncoder: Encoder[Keys] = deriveEncoder[Keys]
+  implicit val keysDecoder: Decoder[Keys] = deriveDecoder[Keys]
 
   case class UserKeycloak(firstName: Option[String], lastName: Option[String], email: Option[String])
+
+  implicit val userEncoder: Encoder[UserKeycloak] = deriveEncoder[UserKeycloak]
+  implicit val userDecoder: Decoder[UserKeycloak] = deriveDecoder[UserKeycloak]
+
   case class UsersKeycloak(users: Seq[UserKeycloak])
 
-  implicit val userJsonFormat: RootJsonFormat[UserKeycloak] = jsonFormat3(UserKeycloak)
-  implicit val usersJsonFormat: RootJsonFormat[UsersKeycloak] = jsonFormat1(UsersKeycloak)
+  implicit val usersEncoder: Encoder[UsersKeycloak] = deriveEncoder[UsersKeycloak]
+  implicit val usersDecoder: Decoder[UsersKeycloak] = deriveDecoder[UsersKeycloak]
+
 }
