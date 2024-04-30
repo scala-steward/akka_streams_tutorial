@@ -3,7 +3,6 @@ package akkahttp
 import org.apache.pekko.NotUsed
 import org.apache.pekko.actor.ActorSystem
 import org.apache.pekko.http.scaladsl.Http
-import org.apache.pekko.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import org.apache.pekko.http.scaladsl.marshalling.Marshal
 import org.apache.pekko.http.scaladsl.model.*
 import org.apache.pekko.http.scaladsl.server.Directives.{complete, logRequestResult, path, *}
@@ -12,7 +11,6 @@ import org.apache.pekko.http.scaladsl.server.directives.FileInfo
 import org.apache.pekko.http.scaladsl.unmarshalling.Unmarshal
 import org.apache.pekko.stream.scaladsl.{FileIO, Keep, Sink, Source}
 import org.apache.pekko.stream.{OverflowStrategy, QueueOfferResult, ThrottleMode}
-import spray.json.{DefaultJsonProtocol, RootJsonFormat}
 
 import java.io.File
 import java.nio.file.Paths
@@ -36,14 +34,10 @@ import scala.util.{Failure, Success}
   *  - Homegrown retry on download, because this does somehow not work yet via the cachedHostConnectionPool
   *
   */
-object HttpFileEchoStream extends App with DefaultJsonProtocol with SprayJsonSupport {
+object HttpFileEchoStream extends App with JsonProtocol {
   implicit val system: ActorSystem = ActorSystem()
 
   import system.dispatcher
-
-  final case class FileHandle(fileName: String, absolutePath: String, length: Long = 0)
-
-  implicit def fileInfoFormat: RootJsonFormat[FileHandle] = jsonFormat3(FileHandle)
 
   val resourceFileName = "testfile.jpg"
   val (address, port) = ("127.0.0.1", 6000)
@@ -114,7 +108,7 @@ object HttpFileEchoStream extends App with DefaultJsonProtocol with SprayJsonSup
 
     val filesToUpload =
     // Unbounded stream. Limited for testing purposes by appending eg .take(5)
-      Source(LazyList.continually(FileHandle(resourceFileName, Paths.get(s"src/main/resources/$resourceFileName").toString))).take(10)
+      Source(LazyList.continually(FileHandle(resourceFileName, Paths.get(s"src/main/resources/$resourceFileName").toString, 0))).take(10)
 
     val hostConnectionPoolUpload = Http().cachedHostConnectionPool[FileHandle](address, port)
 

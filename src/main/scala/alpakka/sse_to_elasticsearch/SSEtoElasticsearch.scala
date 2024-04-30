@@ -22,7 +22,7 @@ import org.opensearch.testcontainers.OpensearchContainer
 import org.slf4j.{Logger, LoggerFactory}
 import org.testcontainers.utility.DockerImageName
 import spray.json.DefaultJsonProtocol.*
-import spray.json.JsonFormat
+import spray.json.RootJsonFormat
 
 import java.io.FileInputStream
 import java.net.URLEncoder
@@ -41,10 +41,13 @@ import scala.util.control.NonFatal
   *  - Elasticsearch version 7.x server
   *  - Opensearch version 1.x server
   *
+  * Remarks:
+  *  - We still need spray.json because of the elasticsearch pekko connectors
+  *
   * Doc:
-  * https://doc.akka.io/docs/alpakka/current/elasticsearch.html
+  * https://pekko.apache.org/docs/pekko-connectors/current/elasticsearch.html
   * https://www.testcontainers.org/modules/elasticsearch
-  * https://doc.akka.io/docs/alpakka/current/opensearch.html
+  * https://pekko.apache.org/docs/pekko-connectors/current/opensearch.html
   * https://github.com/opensearch-project/opensearch-testcontainers
   */
 object SSEtoElasticsearch extends App {
@@ -66,11 +69,22 @@ object SSEtoElasticsearch extends App {
 
   case class Change(timestamp: Long, title: String, serverName: String, user: String, cmdType: String, isBot: Boolean, isNamedBot: Boolean, lengthNew: Int = 0, lengthOld: Int = 0)
 
+  object Change extends ((Long, String, String, String, String, Boolean, Boolean, Int, Int) => Change) {
+    def apply(timestamp: Long, title: String, serverName: String, user: String, cmdType: String, isBot: Boolean, isNamedBot: Boolean, lengthNew: Int = 0, lengthOld: Int = 0): Change =
+      new Change(timestamp, title, serverName, user, cmdType, isBot, isNamedBot, lengthNew, lengthOld)
+
+    implicit def formatChange: RootJsonFormat[Change] = jsonFormat9(Change.apply)
+  }
+
   // Helps to carry the data through the stages, although this violates functional principles
   case class Ctx(change: Change, personsFound: List[String] = List.empty, content: String = "")
 
-  implicit val formatChange: JsonFormat[Change] = jsonFormat9(Change)
-  implicit val formatCtx: JsonFormat[Ctx] = jsonFormat3(Ctx)
+  private object Ctx extends ((Change, List[String], String) => Ctx) {
+    def apply(change: Change, personsFound: List[String] = List.empty, content: String = ""): Ctx =
+      new Ctx(change, personsFound, content)
+
+    implicit def formatCtx: RootJsonFormat[Ctx] = jsonFormat3(Ctx.apply)
+  }
 
   //  private val dockerImageName = DockerImageName
   //    .parse("docker.elastic.co/elasticsearch/elasticsearch-oss")
@@ -79,8 +93,8 @@ object SSEtoElasticsearch extends App {
   //  elasticsearchContainer.start()
   private val dockerImageNameOS = DockerImageName
     .parse("opensearchproject/opensearch")
-    .withTag("1.3.14")
-  private val searchContainer = new OpensearchContainer(dockerImageNameOS);
+    .withTag("1.3.16")
+  private val searchContainer = new OpensearchContainer(dockerImageNameOS)
   searchContainer.start()
 
   val address = searchContainer.getHttpHostAddress
@@ -162,7 +176,8 @@ object SSEtoElasticsearch extends App {
       }
     }
   }
-  def fetchContent(ctx: Ctx): Future[Ctx] = {
+
+  private def fetchContent(ctx: Ctx): Future[Ctx] = {
     logger.info(s"About to read `extract` from Wikipedia entry with title: ${ctx.change.title}")
     val encodedTitle = URLEncoder.encode(ctx.change.title, "UTF-8")
 
@@ -176,7 +191,7 @@ object SSEtoElasticsearch extends App {
   }
 
 
-  def findPersonsLocalNER(ctx: Ctx): Future[Ctx] = {
+  private def findPersonsLocalNER(ctx: Ctx): Future[Ctx] = {
     logger.info(s"LocalNER: About to find person names in: ${ctx.change.title}")
     val content = ctx.content
 
@@ -219,7 +234,7 @@ object SSEtoElasticsearch extends App {
     }
   }
 
-  val nerProcessingFlow: Flow[Change, Ctx, NotUsed] = Flow[Change]
+  private val nerProcessingFlow: Flow[Change, Ctx, NotUsed] = Flow[Change]
     .filter(change => !change.isBot)
     .map(change => Ctx(change))
     .mapAsync(3)(ctx => fetchContent(ctx))
@@ -262,7 +277,7 @@ object SSEtoElasticsearch extends App {
 
   // Note that the size of the collection can also be fetched via a GET request, eg
   // http://localhost:57321/wikipediaedits/_count
-  private def query() = {
+  private def query(): Unit = {
     logger.info(s"About to execute scrolled read queries...")
     for {
       result <- readFromElasticsearchTyped()

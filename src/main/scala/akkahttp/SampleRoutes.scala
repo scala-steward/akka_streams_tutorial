@@ -38,9 +38,11 @@ object SampleRoutes extends App with DefaultJsonProtocol with SprayJsonSupport {
 
   val faultyActor = system.actorOf(Props[FaultyActor](), "FaultyActor")
 
-  case class FaultyActorResponse(totalAttempts: Int)
+  final case class FaultyActorResponse(totalAttempts: Int)
 
-  implicit def fileInfoFormat: RootJsonFormat[FaultyActorResponse] = jsonFormat1(FaultyActorResponse)
+  object FaultyActorResponse extends Serializable {
+    implicit def responseFormat: RootJsonFormat[FaultyActorResponse] = jsonFormat1(FaultyActorResponse.apply)
+  }
 
   val rejectionHandler = RejectionHandler.newBuilder()
     .handle { case ValidationRejection(msg, _) => complete(StatusCodes.InternalServerError, msg) }

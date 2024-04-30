@@ -41,8 +41,10 @@ object HTTPResponseStream extends App with DefaultJsonProtocol with SprayJsonSup
 
   final case class Person(name: String)
 
-  implicit def personFormat: RootJsonFormat[Person] = jsonFormat1(Person)
-
+  private object Person extends Serializable {
+    implicit val personFormat: RootJsonFormat[Person] = jsonFormat1(Person.apply)
+  }
+  
   implicit val jsonStreamingSupport: JsonEntityStreamingSupport = EntityStreamingSupport.json()
 
   val (address, port) = ("127.0.0.1", 8080)

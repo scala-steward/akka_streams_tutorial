@@ -24,9 +24,15 @@ import scala.util.{Failure, Success}
 
 trait JsonProtocol extends DefaultJsonProtocol with SprayJsonSupport {
 
-  case class FileHandle(fileName: String, absolutePath: String, length: Long)
+  @unchecked
+  final case class FileHandle(fileName: String, absolutePath: String, length: Long)
 
-  implicit def fileInfoFormat: RootJsonFormat[FileHandle] = jsonFormat3(FileHandle)
+  object FileHandle extends ((String, String, Long) => FileHandle) {
+    def apply(fileName: String, absolutePath: String, length: Long): FileHandle =
+      new FileHandle(fileName, absolutePath, length)
+
+    implicit def fileInfoFormat: RootJsonFormat[FileHandle] = jsonFormat3(FileHandle.apply)
+  }
 }
 
 /**
