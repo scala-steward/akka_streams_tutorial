@@ -16,6 +16,7 @@ import spray.json.{DefaultJsonProtocol, RootJsonFormat}
 import java.io.File
 import java.nio.file.Paths
 import java.time.LocalTime
+import scala.annotation.unchecked.uncheckedStable
 import scala.collection.parallel.CollectionConverters.*
 import scala.concurrent.duration.*
 import scala.concurrent.{Await, Future}
@@ -24,7 +25,7 @@ import scala.util.{Failure, Success}
 
 trait JsonProtocol extends DefaultJsonProtocol with SprayJsonSupport {
 
-  @unchecked
+  @uncheckedStable
   final case class FileHandle(fileName: String, absolutePath: String, length: Long)
 
   object FileHandle extends ((String, String, Long) => FileHandle) {

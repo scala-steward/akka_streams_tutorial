@@ -66,8 +66,9 @@ object WebsocketChatEcho extends App with ClientCommon {
         logger.info(s"Server received: $text")
         Future.successful(text)
       case TextMessage.Streamed(textStream) =>
-        textStream.runReduce(_ + _)
-          .flatMap(Future.successful)
+        textStream.runReduce(_ + _).flatMap(Future.successful)
+      case bm: BinaryMessage => throw new Exception(s"Binary message: $bm cannot be handled")
+      case other => throw new Exception(s"Unhandled message type: $other cannot be handled")
       }
       .via(Flow.fromSinkAndSourceCoupled(inSink, outSource))
       // Optional msg aggregation

@@ -137,7 +137,7 @@ object WebsocketEcho extends App with WebSocketDirectives with ClientCommon {
               .repeat(s"Heartbeat response: ${LocalDateTime.now()}")
               .throttle(1, 1.seconds)
               .wireTap(msg => logger.info(s"Sending to client: $msg"))
-              .map(TextMessage.Strict)
+              .map(TextMessage.Strict.apply)
               .watchTermination()((_, done) => done.onComplete {
                 case Failure(err) => logger.info(s"Heartbeat server flow failed: $err")
                 case _ => logger.info(s"Heartbeat server flow terminated")
