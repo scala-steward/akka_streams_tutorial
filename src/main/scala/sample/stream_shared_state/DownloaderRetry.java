@@ -5,9 +5,10 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.hc.client5.http.HttpRequestRetryStrategy;
 import org.apache.hc.client5.http.HttpResponseException;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
-import org.apache.hc.client5.http.config.RequestConfig;
+import org.apache.hc.client5.http.config.ConnectionConfig;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
@@ -46,11 +47,13 @@ public class DownloaderRetry {
 
     public Path download(int traceID, URI url, Path destinationFile) {
         LOGGER.info("TRACE_ID: {} about to download...", traceID);
-        RequestConfig timeoutsConfig = RequestConfig.custom()
-                .setConnectTimeout(Timeout.of(DELAY_TO_RETRY_SECONDS, TimeUnit.SECONDS)).build();
+        PoolingHttpClientConnectionManagerBuilder connectionManagerBuilder = PoolingHttpClientConnectionManagerBuilder.create();
+        connectionManagerBuilder.setDefaultConnectionConfig(ConnectionConfig.custom()
+                .setSocketTimeout(Timeout.of(DELAY_TO_RETRY_SECONDS, TimeUnit.SECONDS))
+                .build());
 
         try (CloseableHttpClient httpClient = HttpClientBuilder.create()
-                .setDefaultRequestConfig(timeoutsConfig)
+                .setConnectionManager(connectionManagerBuilder.build())
                 .setRetryStrategy(new CustomHttpRequestRetryStrategy())
                 .build()) {
             Path localPath = httpClient.execute(new HttpGet(url), new HttpResponseHandler(destinationFile));

@@ -1,12 +1,13 @@
 package tools;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
 import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.util.Timeout;
 import org.json.JSONArray;
@@ -15,7 +16,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -100,11 +100,14 @@ public class OpenAICompletions {
                 .setDefaultRequestConfig(timeoutsConfig)
                 .setRetryStrategy(new HttpRequestRetryStrategyOpenAI())
                 .build()) {
-            return IOUtils.toString(httpClient.execute(request).getEntity().getContent(), StandardCharsets.UTF_8);
+            return httpClient.execute(request, response -> {
+                HttpEntity entity = response.getEntity();
+                return entity != null ? EntityUtils.toString(entity) : "N/A";
+            });
         } catch (IOException e) {
-            LOGGER.warn("Connection issue while accessing openai endpoint. Cause: ", e);
+            LOGGER.warn("Connection issue while accessing openai API endpoint: {}. Cause: ", endpointURL, e);
+            throw new RuntimeException(e);
         }
-        return "N/A";
     }
 
     private static ImmutablePair<String, Integer> extractPayloadChatCompletions(String jsonResponseChatCompletions) {
