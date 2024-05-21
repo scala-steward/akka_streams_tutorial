@@ -15,7 +15,7 @@ val kafkaVersion = "3.6.1"
 val activemqVersion = "5.18.4"
 val artemisVersion = "2.33.0"
 val testContainersVersion = "1.19.8"
-val keycloakVersion = "21.1.2" // stay with 21.x because of Java 11 compatibility
+val keycloakVersion = "24.0.4"
 val sttpVersion = "3.9.0"
 val influxdbVersion = "6.10.0"
 val awsClientVersion = "2.25.32"
@@ -131,7 +131,7 @@ libraryDependencies ++= Seq(
   "com.crobox.clickhouse" %% "client" % "1.1.4",
 
   "org.opensearch" % "opensearch-testcontainers" % "2.0.1",
-  "com.github.dasniko" % "testcontainers-keycloak" % "2.5.0",
+  "com.github.dasniko" % "testcontainers-keycloak" % "3.3.1",
   "eu.rekawek.toxiproxy" % "toxiproxy-java" % "2.1.7",
   "org.testcontainers" % "junit-jupiter" % testContainersVersion % Test,
   "org.junit.jupiter" % "junit-jupiter-engine" % "5.9.2" % Test,

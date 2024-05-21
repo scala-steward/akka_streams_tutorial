@@ -12,7 +12,7 @@ import org.apache.pekko.http.scaladsl.server.{AuthenticationFailedRejection, Dir
 import org.apache.pekko.http.scaladsl.unmarshalling.Unmarshal
 import org.keycloak.TokenVerifier
 import org.keycloak.adapters.KeycloakDeploymentBuilder
-import org.keycloak.admin.client.{CreatedResponseUtil, Keycloak, KeycloakBuilder}
+import org.keycloak.admin.client.{CreatedResponseUtil, Keycloak}
 import org.keycloak.jose.jws.AlgorithmType
 import org.keycloak.representations.AccessToken
 import org.keycloak.representations.adapters.config.AdapterConfig
@@ -33,13 +33,13 @@ import scala.util.{Failure, Success}
 
 
 /**
-  * A "one-click" Keycloak OIDC server with pekko-http frontend
+  * A "one-click" Keycloak OIDC server with pekko-http frontend.
+  * The pekko-http endpoint /users loads all users from the Keycloak server.
   *
   * Inspired by:
   * https://scalac.io/blog/user-authentication-keycloak-1
   *
-  * Uses a HTML5 client:
-  * https://github.com/keycloak/keycloak/tree/main/examples/js-console
+  * Uses a HTML5 client: src/main/resources/KeycloakClient.html
   * instead of the separate React client
   *
   * Runs with:
@@ -48,8 +48,7 @@ import scala.util.{Failure, Success}
   *
   * Doc:
   * https://www.keycloak.org/docs/latest/securing_apps/#_javascript_adapter
-  * https://doc.akka.io/docs/akka-http/current/routing-dsl/directives/security-directives/index.html
-  *
+  * https://pekko.apache.org/docs/pekko-http/1.0/routing-dsl/directives/security-directives/index.html
   */
 object OIDCKeycloak extends App with CORSHandler with JsonSupport {
   val logger: Logger = LoggerFactory.getLogger(this.getClass)
@@ -59,7 +58,7 @@ object OIDCKeycloak extends App with CORSHandler with JsonSupport {
 
   def runKeycloak() = {
     // Pin to same version as "keycloakVersion" in build.sbt
-    val keycloak = new KeycloakContainer("quay.io/keycloak/keycloak:21.1.2")
+    val keycloak = new KeycloakContainer("quay.io/keycloak/keycloak:24.0.4")
       // Keycloak config taken from:
       // https://github.com/keycloak/keycloak/blob/main/examples/js-console/example-realm.json
       .withRealmImportFile("keycloak_realm_config.json")
@@ -74,14 +73,8 @@ object OIDCKeycloak extends App with CORSHandler with JsonSupport {
     val adminClientId = "admin-cli"
 
     def initAdminClient() = {
-      val keycloakAdminClient = KeycloakBuilder.builder()
-        .serverUrl(keycloak.getAuthServerUrl)
-        .realm("master")
-        .clientId(adminClientId)
-        .username(keycloak.getAdminUsername)
-        .password(keycloak.getAdminPassword)
-        .build()
-      logger.info("Connected to Keycloak server version: " + keycloakAdminClient.serverInfo().getInfo.getSystemInfo.getVersion)
+      val keycloakAdminClient = keycloak.getKeycloakAdminClient()
+      logger.info("Connected to Keycloak server version: {}", keycloakAdminClient.serverInfo().getInfo.getSystemInfo.getVersion)
       keycloakAdminClient
     }
 

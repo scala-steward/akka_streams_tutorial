@@ -46,9 +46,7 @@ Other noteworthy examples:
 
 Remarks:
 
-* Java 11 language level is kept, hence run with a late JDK 11
-  because [caffeine 3.x](https://github.com/ben-manes/caffeine/releases) requires it as well
-  as [ZipCryptoEcho](src/main/scala/alpakka/file/ZipCryptoEcho.scala). To speed things
+* Java 17 language level is kept, hence run with a late JDK 17 or higher. To speed things
   up [graalvm-jdk-21](https://www.graalvm.org/downloads) works best.
 * Most examples are throttled, so you can see from the console output what is happening
 * Some examples deliberately throw `RuntimeException`, so you can observe recovery behaviour

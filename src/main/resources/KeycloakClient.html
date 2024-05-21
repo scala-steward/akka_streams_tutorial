@@ -1,6 +1,6 @@
 <!--
-  Stolen from:
-  https://github.com/keycloak/keycloak/tree/main/examples/js-console
+  HTML5 client, updated according to:
+  https://www.keycloak.org/docs/24.0.4/securing_apps
   -->
 
 <html>
@@ -23,7 +23,7 @@
     <button onclick="refreshToken(9999)">Refresh Token</button>
     <button onclick="refreshToken(30)">Refresh Token (if <30s validity)</button>
     <button onclick="loadProfile()">Get Profile</button>
-    <button onclick="updateProfile()">Update profile</button>
+    <button onclick="updateProfile()">(Update profile)</button>
     <button onclick="loadUserInfo()">Get User Info</button>
     <button onclick="output(keycloak.tokenParsed)">Show Token</button>
     <button onclick="output(keycloak.refreshTokenParsed)">Show Refresh Token</button>
@@ -68,12 +68,13 @@
         req.send();
     }
 
-    function loadProfile() {
-        keycloak.loadUserProfile().success(function(profile) {
+    async function loadProfile() {
+        try {
+            const profile = await keycloak.loadUserProfile();
             output(profile);
-        }).error(function() {
-            output('Failed to load profile');
-        });
+        } catch (error) {
+            output('Failed to load user profile');
+        }
     }
 
     function updateProfile() {
@@ -93,16 +94,17 @@
                 }
             }
         }
-
-        req.send('{"email":"myemail@foo.bar","firstName":"test","lastName":"bar"}');
+        <!-- For now: hardcoded values -->
+        req.send('{"email":"myemail@foo.bar","firstName":"foo","lastName":"bar","username":"test"}');
     }
 
-    function loadUserInfo() {
-        keycloak.loadUserInfo().success(function(userInfo) {
+    async function loadUserInfo() {
+        try {
+            const userInfo = await keycloak.loadUserInfo();
             output(userInfo);
-        }).error(function() {
+        } catch (error) {
             output('Failed to load user info');
-        });
+        }
     }
 
     function refreshToken(minValidity) {
