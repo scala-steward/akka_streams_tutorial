@@ -175,12 +175,12 @@ public class AESBroker extends BrokerFilter {
     }
 
     public void preProcessDispatch(MessageDispatch messageDispatch) {
-        if (messageDispatch.getMessage() instanceof ActiveMQTextMessage encryptedMessage) {
+        if (messageDispatch.getMessage() instanceof ActiveMQTextMessage) {
+            ActiveMQTextMessage encryptedMessage = (ActiveMQTextMessage) messageDispatch.getMessage();
             ActiveMQTextMessage decryptedMessage = (ActiveMQTextMessage) decryptMessage(encryptedMessage);
             messageDispatch.setMessage(decryptedMessage);
             next.preProcessDispatch(messageDispatch);
         }
-        ;
     }
 
     // Synonym for IV would be: nonce (= number once)
