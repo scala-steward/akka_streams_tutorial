@@ -6,7 +6,7 @@ import org.apache.pekko.actor.{ActorSystem, Props}
 import org.apache.pekko.http.scaladsl.Http
 import org.apache.pekko.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import org.apache.pekko.http.scaladsl.model.StatusCodes.InternalServerError
-import org.apache.pekko.http.scaladsl.model.{ContentTypes, HttpResponse, StatusCodes}
+import org.apache.pekko.http.scaladsl.model.{ContentTypes, HttpEntity, HttpResponse, StatusCodes}
 import org.apache.pekko.http.scaladsl.server.*
 import org.apache.pekko.http.scaladsl.server.Directives.*
 import org.apache.pekko.util.Timeout
@@ -124,21 +124,27 @@ object SampleRoutes extends App with DefaultJsonProtocol with SprayJsonSupport {
   // curl -X POST http://localhost:6002/jsonRaw -d '{"account":{"name":"TEST"}}'
   // https://stackoverflow.com/questions/77490507/apache-pekko-akka-http-extracted-string-body-from-request-doesnt-have-quo
   val jsonRaw: Route =
-  path("jsonRaw")(
-    post(
-      entity(as[String]) {
-        json =>
-          println("JSON raw: " + json)
-          complete(StatusCodes.OK)
-      }
+    path("jsonRaw")(
+      post(
+        entity(as[String]) {
+          json =>
+            println(s"JSON raw: $json")
+            complete(StatusCodes.OK)
+        }
+      )
     )
-  )
+
+  val okResponseXml: Route =
+    path("okResponseXml") {
+      val minValidXml = "<xml version=\"1.0\"/>"
+      complete(StatusCodes.OK, HttpEntity(ContentTypes.`text/xml(UTF-8)`, minValidXml))
+    }
 
   val handleErrors = handleRejections(rejectionHandler) & handleExceptions(exceptionHandler)
 
   val routes = {
     handleErrors {
-      concat(getFromBrowsableDir, parseFormData, getFromDocRoot, getFromFaultyActor, acceptAll, jsonRaw)
+      concat(getFromBrowsableDir, parseFormData, getFromDocRoot, getFromFaultyActor, acceptAll, jsonRaw, okResponseXml)
     }
   }
 
