@@ -180,6 +180,7 @@ public class AESBroker extends BrokerFilter {
             messageDispatch.setMessage(decryptedMessage);
             next.preProcessDispatch(messageDispatch);
         }
+        ;
     }
 
     // Synonym for IV would be: nonce (= number once)
