@@ -41,8 +41,8 @@ object SubtitleTranslator extends App {
   private val targetFilePath = "DE_challenges.srt"
   private val targetLanguage = "German"
 
-  private val defaultModel = "gpt-3.5-turbo"
-  private val fallbackModel = "gpt-3.5-turbo-instruct"
+  private val defaultModel = "gpt-4o"
+  private val fallbackModel = "gpt-4-turbo"
 
   private val maxGapSeconds = 1 // gap time between two scenes (= session windows)
   private val endLineTag = "\n"
@@ -108,13 +108,11 @@ object SubtitleTranslator extends App {
     val toTranslate = generateTranslationPrompt(allLines)
     logger.info(s"Translation prompt: $toTranslate")
 
-    // First try with the cheaper 'gpt-3.5-turbo' model
-    // Also possible to use 'gpt-4'
     val translatedCheap = new OpenAICompletions().runChatCompletions(defaultModel, toTranslate)
     val translated = translatedCheap match {
       case translatedCheap if !isTranslationPlausible(translatedCheap.getLeft, sceneOrig.size) =>
         logger.info(s"Translation with: $defaultModel is not plausible, lines do not match. Fallback to: $fallbackModel")
-        new OpenAICompletions().runCompletions(fallbackModel, toTranslate)
+        new OpenAICompletions().runChatCompletions(fallbackModel, toTranslate)
       case _ => translatedCheap
     }
 
@@ -188,7 +186,7 @@ object SubtitleTranslator extends App {
       logger.warn(s"Translated block text is too long (${textCleaned.length} chars). Try to shorten via API call. Check result manually")
       val toShorten = generateShortenPrompt(textCleaned)
       logger.info(s"Shorten prompt: $toShorten")
-      val responseShort = new OpenAICompletions().runCompletions(fallbackModel, toShorten)
+      val responseShort = new OpenAICompletions().runChatCompletions(defaultModel, toShorten)
       splitSentence(clean(responseShort.getLeft))
     }
     else splitSentence(textCleaned)

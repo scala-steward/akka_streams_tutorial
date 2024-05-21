@@ -47,6 +47,7 @@ public class OpenAICompletions {
         LOGGER.info("Chat total tokens: {}", resultRawChat.getRight());
     }
 
+    // Use for models < 4
     public ImmutablePair<String, Integer> runCompletions(String model, String prompt) {
         JSONObject requestParams = new JSONObject();
         requestParams.put("model", model);
