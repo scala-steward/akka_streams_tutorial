@@ -18,6 +18,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -70,7 +71,7 @@ public class InfluxdbIT {
 
         List<CompletionStage<Done>> futList = IntStream.rangeClosed(1, maxClients).boxed().parallel()
                 .map(i -> influxDBWriter.writeTestPoints(nPoints, "sensor" + i))
-                .toList();
+                .collect(Collectors.toList());
         assertThat(CompletableFuture.allOf(futList.toArray(new CompletableFuture[futList.size()]))).succeedsWithin(5 * maxClients, TimeUnit.SECONDS);
 
         // TODO Activate, when "com.influxdb" %% "influxdb-client-scala" is available for pekko
