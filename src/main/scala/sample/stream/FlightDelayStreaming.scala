@@ -1,7 +1,7 @@
 package sample.stream
 
 import org.apache.pekko.actor.ActorSystem
-import org.apache.pekko.stream.scaladsl._
+import org.apache.pekko.stream.scaladsl.*
 import org.apache.pekko.util.ByteString
 import org.apache.pekko.{Done, NotUsed}
 import sample.graphstage.ThroughputMonitor
@@ -33,11 +33,10 @@ import scala.util.{Failure, Success, Try}
   *
   * Typical results on 2012 vintage MacBook Pro with 8 cores
   * with default dispatcher and default JVM param:
-  * JDK 11.0.11    41 seconds (168905/sec)
-  * JDK 17.0.2     33 seconds (208370/sec)
-  * JDK 19.0.1     29 seconds (240551/sec)
-  * graalvm-ce-19  28 seconds (249179/sec)
-  * graalvm-jdk-21 27 seconds (253324/sec)
+  * JDK 11.0.11    41 seconds
+  * JDK 17.0.2     33 seconds
+  * JDK 21.0.3     27 seconds
+  * graalvm-jdk-21 25 seconds
   *
   * Doc:
   * https://fullgc.github.io/how-to-tune-akka-to-get-the-most-from-your-actor-based-system-part-1
@@ -106,7 +105,7 @@ object FlightDelayStreaming extends App {
 
   terminateWhen(done)
 
-  def terminateWhen(done: Future[Done]) = {
+  def terminateWhen(done: Future[Done]): Unit = {
     done.onComplete {
       case Success(_) =>
         println(s"Run with: " + Runtime.getRuntime.availableProcessors + " cores")

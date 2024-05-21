@@ -103,7 +103,7 @@ public class KinesisEchoIT {
             // That is, two streams in two different accounts can have the same name,
             // and two streams in the same account, but in two different Regions, can have the same name.
             CreateStreamResponse createStreamResponse = kinesisClient.createStream(createStreamRequest);
-            LOGGER.info("createStreamResponse: " + createStreamResponse.responseMetadata().toString());
+            LOGGER.info("createStreamResponse: {}", createStreamResponse.responseMetadata().toString());
         } catch (ResourceInUseException ex) {
             LOGGER.info("Stream: {} already exists. Proceed...", STREAM_NAME);
         }

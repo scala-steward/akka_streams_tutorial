@@ -223,7 +223,7 @@ object SubtitleTranslator extends App {
     List(firstHalf, secondHalf)
   }
 
-  def terminateWhen(done: Future[IOResult]) = {
+  def terminateWhen(done: Future[IOResult]): Unit = {
     done.onComplete {
       case Success(_) =>
         logger.info(s"Flow Success. Finished writing to target file: $targetFilePath. Around $totalTokensUsed tokens used. About to terminate...")

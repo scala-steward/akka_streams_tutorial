@@ -20,7 +20,7 @@ import static org.testcontainers.containers.localstack.LocalStackContainer.Servi
 
 /**
  * Setup/run {@link alpakka.dynamodb.DynamoDBEcho} on localStack container
- *
+ * <p>
  * Running this example against AWS:
  * Looks as if there is a way to delete a DB instance via the SDK:
  * https://docs.aws.amazon.com/code-library/latest/ug/rds_example_rds_DeleteDBInstance_section.html

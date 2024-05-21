@@ -1,14 +1,14 @@
 package alpakka.file.uploader
 
 import org.apache.commons.io.monitor.{FileAlterationListenerAdaptor, FileAlterationMonitor, FileAlterationObserver}
-import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.actor.{ActorSystem, Terminated}
 import org.apache.pekko.stream.connectors.file.scaladsl.Directory
-import org.apache.pekko.stream.scaladsl.{Sink, Source}
+import org.apache.pekko.stream.scaladsl.{Sink, Source, SourceQueueWithComplete}
 import org.apache.pekko.stream.{OverflowStrategy, QueueOfferResult}
 import org.slf4j.{Logger, LoggerFactory}
 
 import java.io.File
-import java.nio.file._
+import java.nio.file.*
 import scala.compat.java8.StreamConverters.StreamHasToScala
 import scala.concurrent.Future
 
@@ -31,9 +31,9 @@ class DirectoryListener(uploadDir: Path, processedDir: Path) {
 
   import system.dispatcher
 
-  val uploader = Uploader(system)
+  val uploader: Uploader = Uploader(system)
 
-  val uploadSourceQueue = Source
+  val uploadSourceQueue: SourceQueueWithComplete[Path] = Source
     .queue[Path](bufferSize = 1000, OverflowStrategy.backpressure, maxConcurrentOffers = 1000)
     .mapAsync(1)(path => uploadAndMove(path))
     .to(Sink.ignore)
@@ -67,16 +67,16 @@ class DirectoryListener(uploadDir: Path, processedDir: Path) {
     val monitor = new FileAlterationMonitor(1000)
     val listener = new FileAlterationListenerAdaptor() {
 
-      override def onFileCreate(file: File) = {
+      override def onFileCreate(file: File): Unit = {
         logger.info(s"CREATED: $file")
         addToUploadQueue(file.toPath: Path)
       }
 
-      override def onFileDelete(file: File) = {
+      override def onFileDelete(file: File): Unit = {
         logger.info(s"DELETED: $file")
       }
 
-      override def onFileChange(file: File) = {
+      override def onFileChange(file: File): Unit = {
         logger.info(s"CHANGED: $file")
       }
     }
@@ -109,11 +109,11 @@ class DirectoryListener(uploadDir: Path, processedDir: Path) {
     Files.move(sourcePath, targetPath, StandardCopyOption.REPLACE_EXISTING)
   }
 
-  def countFilesProcessed() = {
+  def countFilesProcessed(): Int = {
     new File(processedDir.toString).list().length
   }
 
-  def stop() = {
+  def stop(): Future[Terminated] = {
     logger.info("About to shutdown DirectoryListener...")
     uploader.stop()
   }

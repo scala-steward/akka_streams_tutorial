@@ -2,8 +2,8 @@ package sample.stream
 
 import org.apache.pekko.actor.ActorSystem
 import org.apache.pekko.stream.ClosedShape
-import org.apache.pekko.stream.scaladsl.GraphDSL.Implicits._
-import org.apache.pekko.stream.scaladsl._
+import org.apache.pekko.stream.scaladsl.*
+import org.apache.pekko.stream.scaladsl.GraphDSL.Implicits.*
 import org.apache.pekko.util.ByteString
 
 import java.io.{BufferedInputStream, BufferedOutputStream}
@@ -27,7 +27,7 @@ object AvoidDeadlockByUsingSeparateCustomDispatchers extends App {
 
   println(s"Running with $PROCESSES_COUNT processes...")
 
-  def executeCmdOnStream(cmd: String): Flow[ByteString, ByteString, _] = {
+  def executeCmdOnStream(cmd: String): Flow[ByteString, ByteString, ?] = {
     val convertProcess = new ProcessBuilder(cmd).start
     val pipeIn = new BufferedOutputStream(convertProcess.getOutputStream)
     val pipeOut = new BufferedInputStream(convertProcess.getInputStream)

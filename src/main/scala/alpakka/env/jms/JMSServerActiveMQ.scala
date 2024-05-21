@@ -13,7 +13,7 @@ import org.slf4j.{Logger, LoggerFactory}
   * Search for: Embedding Apache ActiveMQ Artemis
   *
   * Issues:
-  * Messages are processed but produces random NPE while decrypting messages in AESBroker
+  * Messages are processed, but random NPE occur while decrypting messages in AESBroker
   *
   */
 object JMSServerActiveMQ extends App {

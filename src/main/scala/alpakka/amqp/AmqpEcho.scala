@@ -64,7 +64,7 @@ object AmqpEcho extends App {
     * @param id
     * @param rabbitMQContainer
     */
-  def pubSubClient(id: Int, rabbitMQContainer: RabbitMQContainer) = {
+  def pubSubClient(id: Int, rabbitMQContainer: RabbitMQContainer): Unit = {
     val connectionProvider =
       AmqpCachedConnectionProvider(
         AmqpDetailsConnectionProvider(
@@ -93,7 +93,7 @@ object AmqpEcho extends App {
     * @param id
     * @param rabbitMQContainer
     */
-  def rpcScenario(id: Int, rabbitMQContainer: RabbitMQContainer) = {
+  def rpcScenario(id: Int, rabbitMQContainer: RabbitMQContainer): Unit = {
     val mappedPort = rabbitMQContainer.getAmqpPort
     val amqpUri = s"amqp://$host:$mappedPort"
     val connectionProvider = AmqpCachedConnectionProvider(AmqpUriConnectionProvider(amqpUri))
@@ -190,7 +190,7 @@ object AmqpEcho extends App {
     writeResult
   }
 
-  private def receiveFromQueueAck(id: Int, connectionProvider: AmqpCachedConnectionProvider, queueDeclaration: QueueDeclaration, noOfSentMsg: Int, queueNameFull: String) = {
+  private def receiveFromQueueAck(id: Int, connectionProvider: AmqpCachedConnectionProvider, queueDeclaration: QueueDeclaration, noOfSentMsg: Int, queueNameFull: String): Unit = {
     logger.info(s"Starting receiveFromQueueAck: $queueNameFull...")
 
     val amqpSource = AmqpSource.committableSource(
@@ -225,7 +225,7 @@ object AmqpEcho extends App {
     }
   }
 
-  private def sendToExchange(id: Int, connectionProvider: AmqpCachedConnectionProvider, exchangeName: String, exchangeDeclaration: ExchangeDeclaration) = {
+  private def sendToExchange(id: Int, connectionProvider: AmqpCachedConnectionProvider, exchangeName: String, exchangeDeclaration: ExchangeDeclaration): Unit = {
     // Wait until the receiver has registered
     Thread.sleep(1000)
     logger.info(s"Starting sendToExchange: $exchangeName...")

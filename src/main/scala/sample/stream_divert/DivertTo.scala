@@ -60,7 +60,7 @@ object DivertTo extends App {
   terminateWhen(done)
 
 
-  def terminateWhen(done: Future[_]) = {
+  def terminateWhen(done: Future[?]): Unit = {
     done.onComplete {
       case Success(_) =>
         println("Flow Success. About to terminate...")

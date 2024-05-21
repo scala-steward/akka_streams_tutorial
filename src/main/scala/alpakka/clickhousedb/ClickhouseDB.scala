@@ -3,6 +3,7 @@ package alpakka.clickhousedb
 import com.crobox.clickhouse.ClickhouseClient
 import com.crobox.clickhouse.stream.{ClickhouseSink, Insert}
 import com.typesafe.config.{Config, ConfigFactory, ConfigValueFactory}
+import org.apache.pekko.Done
 import org.apache.pekko.actor.ActorSystem
 import org.apache.pekko.stream.scaladsl.{Framing, Sink, Source}
 import org.apache.pekko.util.ByteString
@@ -43,7 +44,7 @@ class ClickhouseDB(httpPort: Int) {
     result.trim
   }
 
-  def writeAll(noOfRecords: Integer) = {
+  def writeAll(noOfRecords: Integer): Future[Done] = {
     Source(1 to noOfRecords)
       .map(id => Insert("test.my_table", s"{\"myfloat_nullable\": $id, \"mystr\": $id, \"myint_id\": $id}"))
       .wireTap((insert: Insert) => logger.debug(s"Insert record with type JSONEachRow: $insert"))
@@ -51,7 +52,7 @@ class ClickhouseDB(httpPort: Int) {
   }
 
   // The most intuitive way to read the streamed records
-  def readAllSource() = {
+  def readAllSource(): Future[Int] = {
     val resultFut = client.source("SELECT * FROM test.my_table ORDER BY myint_id ASC FORMAT JSONEachRow SETTINGS output_format_json_named_tuples_as_objects=1;")
       .wireTap((line: String) => logger.debug(s"Raw JSON record: $line"))
       .runWith(Sink.seq)
@@ -60,7 +61,7 @@ class ClickhouseDB(httpPort: Int) {
   }
 
   // An alternative way to read, allows for more control, eg while massaging the result
-  def readAllSourceByteString() = {
+  def readAllSourceByteString(): Future[Int] = {
     val resultFut = client.sourceByteString("SELECT * FROM test.my_table ORDER BY myint_id ASC FORMAT JSONEachRow SETTINGS output_format_json_named_tuples_as_objects=1;")
       .wireTap((allLines: ByteString) => logger.debug("Raw JSON records all-in-one: \n" + allLines.utf8String))
       .via(Framing.delimiter(ByteString.fromString(System.lineSeparator()), 1024))

@@ -21,7 +21,7 @@ class SlickEmbeddedIT {
     private static SlickRunner SLICK_RUNNER;
 
     @RegisterExtension
-    private static final PostgresClusterEmbedded POSTGRES = new PostgresClusterEmbedded();
+    public static final PostgresClusterEmbedded POSTGRES = new PostgresClusterEmbedded();
 
     private static final String DB_NAME = "test";
     private static final String USER_NAME = "test";

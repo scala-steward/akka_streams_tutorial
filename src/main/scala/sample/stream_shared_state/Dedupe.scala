@@ -38,7 +38,7 @@ object Dedupe extends App {
 
   terminateWhen(done)
 
-  def terminateWhen(done: Future[_]) = {
+  def terminateWhen(done: Future[?]): Unit = {
     done.onComplete {
       case Success(_) =>
         logger.info("Flow Success. About to terminate...")

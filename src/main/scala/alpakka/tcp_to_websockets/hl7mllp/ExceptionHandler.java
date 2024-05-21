@@ -19,8 +19,7 @@ public class ExceptionHandler implements ReceivingApplicationExceptionHandler {
 	/*
 	 * @return theOutgoingNegativeAcknowledgementMessage (possibly enhanced)
 	 */
-	public String processException(String theIncomingMessage, Map<String, Object> theIncomingMetadata, String theOutgoingNegativeAcknowledgementMessage, Exception theException)
-			throws HL7Exception {
+	public String processException(String theIncomingMessage, Map<String, Object> theIncomingMetadata, String theOutgoingNegativeAcknowledgementMessage, Exception theException) {
 
 		LOGGER.error("The error message was:" + theException.getMessage() + "\n");
 

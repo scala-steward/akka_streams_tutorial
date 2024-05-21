@@ -24,16 +24,16 @@ class KafkaServerTestcontainers {
   val imageName = s"confluentinc/cp-kafka:$kafkaVersion"
   val originalPort = 9093
   var mappedPort = 1111
-  val kafkaContainer = new KafkaContainer(DockerImageName.parse(imageName)).
+  val kafkaContainer: KafkaContainer = new KafkaContainer(DockerImageName.parse(imageName)).
     withExposedPorts(originalPort)
 
-  def run() = {
+  def run(): Unit = {
     kafkaContainer.start()
     mappedPort = kafkaContainer.getMappedPort(originalPort)
     logger.info(s"Running Kafka: $imageName on mapped port: $mappedPort")
   }
 
-  def stop() = {
+  def stop(): Unit = {
     kafkaContainer.stop()
   }
 }

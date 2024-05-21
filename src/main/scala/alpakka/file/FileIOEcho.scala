@@ -48,7 +48,7 @@ object FileIOEcho extends App {
     case Failure(ex) => println(s"Exception: $ex")
   }
 
-  def terminateWhen(done: Future[IOResult]) = {
+  def terminateWhen(done: Future[IOResult]): Unit = {
     done.onComplete {
       case Success(_) =>
         println(s"Flow Success. Written file: $resultFileName About to terminate...")

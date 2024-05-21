@@ -35,12 +35,12 @@ trait ClientCommon {
       //see https://github.com/akka/akka-http/issues/65
       case TextMessage.Strict(text) => logger.info(s"Client received TextMessage.Strict: $text")
       case TextMessage.Streamed(textStream) => textStream.runFold("")(_ + _).onComplete(value => logger.info(s"Client received TextMessage.Streamed: ${value.get}"))
-      case BinaryMessage.Strict(binary) => //do nothing
+      case BinaryMessage.Strict(_) => // binary, do nothing
       case BinaryMessage.Streamed(binaryStream) => binaryStream.runWith(Sink.ignore)
     }
 
   // see https://doc.akka.io/docs/akka-http/current/client-side/websocket-support.html?language=scala#half-closed-websockets
-  def namedSource(clientname: String) = {
+  def namedSource(clientname: String): Source[Message, Promise[Option[Message]]] = {
     Source
       .tick(1.second, 1.second, "tick")
       .zipWithIndex
@@ -50,7 +50,7 @@ trait ClientCommon {
       .concatMat(Source.maybe[Message])(Keep.right)
   }
 
-  def browserClient() = {
+  def browserClient(): AnyVal = {
     val os = System.getProperty("os.name").toLowerCase
     if (os == "mac os x") Process("open src/main/resources/WebsocketEcho.html").!
     else if (os == "windows 10") Seq("cmd", "/c", "start src/main/resources/WebsocketEcho.html").!
@@ -175,7 +175,7 @@ object WebsocketEcho extends App with WebSocketDirectives with ClientCommon {
     }
   }
 
-  def singleWebSocketRequestClient(id: Int, address: String, port: Int) = {
+  def singleWebSocketRequestClient(id: Int, address: String, port: Int): Unit = {
 
     val webSocketNonReusableFlow: Flow[Message, Message, Promise[Option[Message]]] =
       Flow.fromSinkAndSourceMat(
@@ -191,7 +191,7 @@ object WebsocketEcho extends App with WebSocketDirectives with ClientCommon {
     completionPromise.future.onComplete(closed => logger.info(s"Client: $id singleWebSocketRequestClient closed: $closed"))
   }
 
-  def webSocketClientFlowClient(id: Int, address: String, port: Int) = {
+  def webSocketClientFlowClient(id: Int, address: String, port: Int): Unit = {
 
     val webSocketNonReusableFlow: Flow[Message, Message, Future[WebSocketUpgradeResponse]] = Http().webSocketClientFlow(WebSocketRequest(s"ws://$address:$port/echo"))
 
@@ -207,7 +207,7 @@ object WebsocketEcho extends App with WebSocketDirectives with ClientCommon {
     closed.onComplete(closed => logger.info(s"Client: $id webSocketClientFlowClient closed: $closed"))
   }
 
-  def singleWebSocketRequestSourceQueueClient(id: Int, address: String, port: Int) = {
+  def singleWebSocketRequestSourceQueueClient(id: Int, address: String, port: Int): Unit = {
 
     val (source, sourceQueue) = {
       val p = Promise[SourceQueue[Message]]()
@@ -248,7 +248,7 @@ object WebsocketEcho extends App with WebSocketDirectives with ClientCommon {
     sourceQueueWithComplete.complete()
   }
 
-  def actorClient(id: Int, address: String, port: Int) = {
+  def actorClient(id: Int, address: String, port: Int): Unit = {
 
     val sourceBackpressure = Source.actorRefWithBackpressure[TextMessage](
       ackMessage = "ack",

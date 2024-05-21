@@ -100,7 +100,7 @@ object WebsocketChatEcho extends App with ClientCommon {
       .map(addr => logger.info(s"Server bound to: $addr"))
   }
 
-  private def clientWebSocketClientFlow(clientName: String, address: String, port: Int) = {
+  private def clientWebSocketClientFlow(clientName: String, address: String, port: Int): Unit = {
 
     val webSocketNonReusableFlow: Flow[Message, Message, Future[WebSocketUpgradeResponse]] = Http().webSocketClientFlow(WebSocketRequest(s"ws://$address:$port/echochat"))
 

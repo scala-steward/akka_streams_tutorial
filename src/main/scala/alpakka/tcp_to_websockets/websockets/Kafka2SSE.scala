@@ -12,12 +12,13 @@ import org.apache.pekko.http.scaladsl.model.sse.ServerSentEvent
 import org.apache.pekko.http.scaladsl.unmarshalling.Unmarshal
 import org.apache.pekko.kafka.scaladsl.Consumer
 import org.apache.pekko.kafka.{ConsumerSettings, Subscriptions}
-import org.apache.pekko.stream._
+import org.apache.pekko.stream.*
 import org.apache.pekko.stream.scaladsl.{Keep, RestartSource, Sink, Source}
 import org.slf4j.{Logger, LoggerFactory}
 
 import java.util.Locale
-import scala.concurrent.duration._
+import scala.concurrent.Future
+import scala.concurrent.duration.*
 import scala.language.postfixOps
 import scala.util.{Failure, Success}
 
@@ -41,13 +42,13 @@ class Kafka2SSE(mappedPortKafka: Int = 9092) {
   var clientKillSwitch: UniqueKillSwitch = _
   var serverBinding: ServerBinding = _
 
-  def run() = {
+  def run(): Unit = {
     server(address, port)
     clientKillSwitch = backoffClient(address, port)
   }
 
-  def stop() = {
-    logger.info("Stopping...");
+  def stop(): Future[Http.HttpTerminated] = {
+    logger.info("Stopping...")
     clientKillSwitch.shutdown()
     serverBinding.terminate(10.seconds)
   }
@@ -62,11 +63,11 @@ class Kafka2SSE(mappedPortKafka: Int = 9092) {
   }
 
 
-  private def server(address: String, port: Int) = {
+  private def server(address: String, port: Int): Unit = {
 
     val route = {
-      import org.apache.pekko.http.scaladsl.marshalling.sse.EventStreamMarshalling._
-      import org.apache.pekko.http.scaladsl.server.Directives._
+      import org.apache.pekko.http.scaladsl.marshalling.sse.EventStreamMarshalling.*
+      import org.apache.pekko.http.scaladsl.server.Directives.*
 
       def events =
         path("events" / Segment) { clientName =>
@@ -100,7 +101,7 @@ class Kafka2SSE(mappedPortKafka: Int = 9092) {
 
   private def backoffClient(address: String, port: Int) = {
 
-    import org.apache.pekko.http.scaladsl.unmarshalling.sse.EventStreamUnmarshalling._
+    import org.apache.pekko.http.scaladsl.unmarshalling.sse.EventStreamUnmarshalling.*
 
     val restartSettings = RestartSettings(1.second, 10.seconds, 0.2).withMaxRestarts(10, 1.minute)
     val restartSource = RestartSource.withBackoff(restartSettings) { () =>

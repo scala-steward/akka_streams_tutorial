@@ -12,7 +12,7 @@ import scala.util.{Failure, Success}
   * Similar to: [[OneBillionRowChallenge]]
   * File reading is still sequential, but now:
   *  - the stream is partitioned, see batchSize
-  *  - the aggregation is parallel, see parallelisationFactor
+  *  - the aggregation is parallel, see parallelizationFactor
   *
   * Runtime is still around 4 minutes on i7-11850H,
   * so still nothing to write home about...
@@ -23,7 +23,7 @@ object OneBillionRowChallengeScale extends App {
   import system.dispatcher
 
   val batchSize = 1024 * 1000 * 10 // 10MB
-  val parallelisationFactor = 16 // Increase to utilize machine cores
+  val parallelizationFactor = 16 // Increase to utilize machine cores
 
   // Wire the generated 1 Billion records resource file
   val sourceOfRows = FileIO.fromPath(Paths.get("measurements_subset_10000.txt"), chunkSize = 1024 * 1000)
@@ -57,7 +57,7 @@ object OneBillionRowChallengeScale extends App {
 
   val result = sourceOfRows
     .grouped(batchSize)
-    .mapAsync(parallelisationFactor)(batchSeq => aggregateFlow(batchSeq))
+    .mapAsync(parallelizationFactor)(batchSeq => aggregateFlow(batchSeq))
     .mapConcat(identity) // flatten
     .groupBy(420, _.location, allowClosedSubstreamRecreation = true)
     .fold(MeasurementAggregate("", 0, 0, 0, 0)) {

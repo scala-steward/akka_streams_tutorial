@@ -10,7 +10,7 @@ import org.apache.pekko.stream.scaladsl.{Keep, Sink, Source}
 import java.nio.file.{FileSystem, FileSystems, Path, Paths}
 import java.util.Scanner
 import scala.concurrent.Await
-import scala.concurrent.duration._
+import scala.concurrent.duration.*
 
 class LogFileScanner(localLogFilePath: String = "logs/application.log") {
   implicit val system: ActorSystem = ActorSystem()

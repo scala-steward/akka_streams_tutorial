@@ -62,7 +62,7 @@ object WebsocketEchoActors extends App with ClientCommon {
     case class CloseConnection(uuid: UUID)
   }
 
-  def server(address: String, port: Int) = {
+  def server(address: String, port: Int): Unit = {
 
     val chatRef = system.actorOf(Props[ChatRef]())
 

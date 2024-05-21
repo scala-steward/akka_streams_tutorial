@@ -1,6 +1,6 @@
 package sample.graphstage
 
-import org.apache.pekko.stream.stage._
+import org.apache.pekko.stream.stage.*
 import org.apache.pekko.stream.{Attributes, FlowShape, Inlet, Outlet}
 
 import scala.concurrent.duration.{DurationInt, FiniteDuration}
@@ -28,7 +28,7 @@ final class Pulse[T](interval: FiniteDuration, initiallyOpen: Boolean = false)
         if (isAvailable(out) && !isClosed(in) && !hasBeenPulled(in)) pull(in)
       }
 
-      private def startPulsing() = {
+      private def startPulsing(): Unit = {
         pulsing = true
         scheduleWithFixedDelay("PulseTimer", 100.millis, interval)
       }

@@ -7,7 +7,7 @@ import org.apache.pekko.stream.{FlowShape, OverflowStrategy}
 
 import scala.collection.immutable
 import scala.concurrent.Future
-import scala.concurrent.duration._
+import scala.concurrent.duration.*
 import scala.util.{Failure, Success}
 
 
@@ -53,7 +53,7 @@ object ParameterizedFlowService {
 
   def result(): Future[Seq[Double]] = flow._2
 
-  val fun = (flowValue: Int, paramValue: Double) => flowValue * paramValue
+  val fun: (Int, Double) => Double = (flowValue: Int, paramValue: Double) => flowValue * paramValue
   val flow: ((Cancellable, SourceQueueWithComplete[Double]), Future[immutable.Seq[Double]]) =
     Source.tick(0.seconds, 500.millis, 10)
       .viaMat(createParamFlow(1, OverflowStrategy.dropBuffer, 0.5)(fun))(Keep.both)
@@ -67,7 +67,7 @@ object ParameterizedFlowService {
   private def createParamFlow[A, P, O](bufferSize: Int, overflowStrategy: OverflowStrategy, initialParam: P)(fun: (A, P) => O) =
     Flow.fromGraph(GraphDSL.createGraph(Source.queue[P](bufferSize, overflowStrategy)) { implicit builder =>
       queue =>
-        import GraphDSL.Implicits._
+        import GraphDSL.Implicits.*
         val zip = builder.add(Zip[A, P]())
         // Interesting use of the extrapolate operator
         // based on https://doc.akka.io/docs/akka/current/stream/stream-rate.html#understanding-extrapolate-and-expand
@@ -79,7 +79,7 @@ object ParameterizedFlowService {
         FlowShape(zip.in0, map.out)
     })
 
-  private def terminateWhen(done: Future[_]) = {
+  private def terminateWhen(done: Future[?]): Unit = {
     done.onComplete {
       case Success(_) =>
         println("Flow Success. About to terminate...")

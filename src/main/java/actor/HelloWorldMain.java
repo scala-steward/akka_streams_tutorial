@@ -20,7 +20,6 @@ public class HelloWorldMain extends AbstractBehavior<HelloWorldMain.Start> {
 
         system.tell(new HelloWorldMain.Start("World"));
         system.tell(new HelloWorldMain.Start("Akka"));
-        //TODO Add ask messages
 
         Thread.sleep(3000);
         system.terminate();

@@ -12,7 +12,7 @@ import scala.concurrent.duration.*
 case class ConnectionException(cause: String) extends RuntimeException
 
 object WebsocketClientActor {
-  def props(id: String, endpoint: String, websocketConnectionStatusActor: ActorRef) =
+  def props(id: String, endpoint: String, websocketConnectionStatusActor: ActorRef): Props =
     Props(new WebsocketClientActor(id, endpoint, websocketConnectionStatusActor))
 
   final case object Upgraded
@@ -29,7 +29,7 @@ class WebsocketClientActor(id: String, endpoint: String, websocketConnectionStat
   implicit private val system: ActorSystem = context.system
   implicit private val executionContext: ExecutionContextExecutor = system.dispatcher
 
-  val webSocketClient = WebSocketClient(id, endpoint, self)
+  val webSocketClient: WebSocketClient = WebSocketClient(id, endpoint, self)
 
   override def receive: Receive = startup //initial state
 

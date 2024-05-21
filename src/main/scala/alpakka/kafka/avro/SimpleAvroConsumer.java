@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.Duration;
-import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 
 /**
@@ -32,7 +32,7 @@ public class SimpleAvroConsumer {
         String schemaFile = new String(Files.readAllBytes(Paths.get("src/main/scala/alpakka/kafka/avro/record.avsc")));
 
         KafkaConsumer<String, byte[]> consumer = new KafkaConsumer<>(props);
-        consumer.subscribe(Arrays.asList("avro-topic"));
+        consumer.subscribe(List.of("avro-topic"));
 
         boolean running = true;
         while (running) {
@@ -49,6 +49,5 @@ public class SimpleAvroConsumer {
                         + ", int1=" + record.get("int1"));
             }
         }
-        consumer.close();
     }
 }

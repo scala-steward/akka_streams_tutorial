@@ -1,13 +1,14 @@
 package sample.graphstage
 
 import org.apache.pekko.NotUsed
-import org.apache.pekko.stream._
-import org.apache.pekko.stream.scaladsl._
-import org.apache.pekko.stream.stage._
+import org.apache.pekko.stream.*
+import org.apache.pekko.stream.scaladsl.*
+import org.apache.pekko.stream.stage.*
 import sample.graphstage.ThroughputMonitor.Stats
 
 import scala.concurrent.duration.FiniteDuration
 
+// @formatter:off
 /**
   * Stolen from:
   * https://github.com/ruippeixotog/akka-stream-mon
@@ -18,8 +19,8 @@ import scala.concurrent.duration.FiniteDuration
   *                         |
   *                         |
   *                     +---v---+
-  * | Stats |
-  * +-------+
+  *                     | Stats |
+  *                     +-------+
   *
   * A graph stage measuring the element throughput at a given point in a graph. The stage emits through `out` all
   * elements received at `in`, while a second output port `statsOut` emits statistics of the number of elements passing
@@ -34,15 +35,16 @@ import scala.concurrent.duration.FiniteDuration
   *
   * @tparam A the type of the elements passing through this stage
   */
+// @formatter:on
 class ThroughputMonitor[A] extends GraphStage[FanOutShape2[A, A, Stats]] {
 
-  val in = Inlet[A]("ThroughputMonitor.in")
-  val out = Outlet[A]("ThroughputMonitor.out")
-  val statsOut = Outlet[Stats]("ThroughputMonitor.statsOut")
+  val in: Inlet[A] = Inlet[A]("ThroughputMonitor.in")
+  val out: Outlet[A] = Outlet[A]("ThroughputMonitor.out")
+  val statsOut: Outlet[Stats] = Outlet[Stats]("ThroughputMonitor.statsOut")
 
   val shape = new FanOutShape2[A, A, Stats](in, out, statsOut)
 
-  def createLogic(inheritedAttributes: Attributes) = new GraphStageLogic(shape) {
+  def createLogic(inheritedAttributes: Attributes): GraphStageLogic = new GraphStageLogic(shape) {
 
     private var lastStatsPull = System.nanoTime()
     private var count = 0L
@@ -56,15 +58,18 @@ class ThroughputMonitor[A] extends GraphStage[FanOutShape2[A, A, Stats]] {
     }
 
     setHandler(in, new InHandler {
-      def onPush() = { count += 1; push(out, grab(in)) }
+      def onPush(): Unit = {
+        count += 1;
+        push(out, grab(in))
+      }
     })
 
     setHandler(out, new OutHandler {
-      def onPull() = pull(in)
+      def onPull(): Unit = pull(in)
     })
 
     setHandler(statsOut, new OutHandler {
-      def onPull() = pushStats()
+      def onPull(): Unit = pushStats()
     })
   }
 }
@@ -72,10 +77,10 @@ class ThroughputMonitor[A] extends GraphStage[FanOutShape2[A, A, Stats]] {
 object ThroughputMonitor {
 
   /**
-    * Aggregate (backpressued) throughput metrics of a stream
+    * Aggregate (backpressured) throughput metrics of a stream
     *
     * @param timeElapsed the time elapsed between the measurement start and its end, in milliseconds
-    * @param count the number of elements that passed through the stream
+    * @param count       the number of elements that passed through the stream
     */
   case class Stats(timeElapsed: Long, count: Long) {
 
@@ -103,11 +108,12 @@ object ThroughputMonitor {
     * @return a `Flow` that outputs all its inputs and emits throughput stats to `statsSink`.
     */
   def apply[A, Mat](statsSink: Sink[Stats, Mat]): Graph[FlowShape[A, A], Mat] = {
-    GraphDSL.createGraph(statsSink) { implicit b => sink =>
-      import GraphDSL.Implicits._
-      val mon = b.add(apply[A])
-      mon.out1 ~> sink
-      FlowShape(mon.in, mon.out0)
+    GraphDSL.createGraph(statsSink) { implicit b =>
+      sink =>
+        import GraphDSL.Implicits.*
+        val mon = b.add(apply[A])
+        mon.out1 ~> sink
+        FlowShape(mon.in, mon.out0)
     }
   }
 
@@ -115,7 +121,7 @@ object ThroughputMonitor {
     * Creates a `ThroughputMonitor` stage with throughput stats handled periodically by a callback.
     *
     * @param statsInterval the update frequency of the throughput stats
-    * @param onStats the function to call when a throughput stats bucket is available
+    * @param onStats       the function to call when a throughput stats bucket is available
     * @tparam A the type of the elements passing through this stage
     * @return a `Flow` that outputs all its inputs and calls `onStats` frequently with throughput stats.
     */
@@ -124,7 +130,7 @@ object ThroughputMonitor {
 
   def avgThroughputReport(stats: Seq[Stats]): Long = {
     val threshold = 5
-    val processedElements =  stats.map(_.count).sum
+    val processedElements = stats.map(_.count).sum
     val totalTime = stats.map(_.timeElapsed).sum / 1000
     if (totalTime >= threshold) {
       val throughputPerSec = processedElements / totalTime

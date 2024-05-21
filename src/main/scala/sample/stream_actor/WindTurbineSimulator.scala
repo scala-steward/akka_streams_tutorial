@@ -15,7 +15,7 @@ case class WindTurbineSimulatorException(id: String) extends RuntimeException
   *  - running
   */
 object WindTurbineSimulator {
-  def props(id: String, endpoint: String) =
+  def props(id: String, endpoint: String): Props =
     Props(new WindTurbineSimulator(id, endpoint))
 
   final case object Upgraded
@@ -30,7 +30,7 @@ class WindTurbineSimulator(id: String, endpoint: String)
   implicit private val system: ActorSystem = context.system
   implicit private val executionContext: ExecutionContextExecutor = system.dispatcher
 
-  val webSocketClient = WebSocketClient(id, endpoint, self)
+  val webSocketClient: WebSocketClient = WebSocketClient(id, endpoint, self)
 
   override def receive: Receive = startup //initial state
 

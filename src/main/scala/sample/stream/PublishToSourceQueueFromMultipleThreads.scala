@@ -1,14 +1,14 @@
 package sample.stream
 
 import org.apache.pekko.actor.ActorSystem
-import org.apache.pekko.stream._
+import org.apache.pekko.stream.*
 import org.apache.pekko.stream.scaladsl.{Flow, Sink, Source, SourceQueueWithComplete}
 import org.apache.pekko.{Done, NotUsed}
 import org.slf4j.{Logger, LoggerFactory}
 
-import scala.collection.parallel.CollectionConverters._
+import scala.collection.parallel.CollectionConverters.*
 import scala.concurrent.Future
-import scala.concurrent.duration._
+import scala.concurrent.duration.*
 import scala.util.{Failure, Success}
 
 /**
@@ -57,7 +57,7 @@ object PublishToSourceQueueFromMultipleThreads extends App {
 
   simulatePublishingFromMultipleThreads()
 
-  private def simulatePublishingFromMultipleThreads() = {
+  private def simulatePublishingFromMultipleThreads(): Unit = {
     (1 to numberOfPublishingClients).par.foreach(offerToSourceQueue)
   }
 
@@ -70,7 +70,7 @@ object PublishToSourceQueueFromMultipleThreads extends App {
     }
   }
 
-  private def signalWhen(done: Future[Done], operation: String) = {
+  private def signalWhen(done: Future[Done], operation: String): Unit = {
     done.onComplete {
       case Success(_) =>
         logger.info(s"Finished: $operation")

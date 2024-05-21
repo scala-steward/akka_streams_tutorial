@@ -6,7 +6,7 @@ import org.apache.pekko.stream.scaladsl.Source
 import java.time.format.DateTimeFormatter
 import java.time.{Instant, OffsetDateTime, ZoneId}
 import scala.collection.mutable
-import scala.concurrent.duration._
+import scala.concurrent.duration.*
 import scala.util.Random
 
 /**
@@ -42,12 +42,10 @@ object WindowingExample extends App {
   val delayFactor = 8
   val acceptedMaxDelay = 4.seconds.toMillis // Lower value leads to dropping of events
 
-  implicit val ordering: Ordering[MyEvent] = new Ordering[MyEvent] {
-    def compare(x: MyEvent, y: MyEvent): Int = {
-      if (x.timestamp < y.timestamp) -1
-      else if (x.timestamp > y.timestamp) 1
-      else 0
-    }
+  implicit val ordering: Ordering[MyEvent] = (x: MyEvent, y: MyEvent) => {
+    if (x.timestamp < y.timestamp) -1
+    else if (x.timestamp > y.timestamp) 1
+    else 0
   }
 
   Source
@@ -92,9 +90,9 @@ object WindowingExample extends App {
   }
 
   object Window {
-    val WindowLength = 10.seconds.toMillis
-    val WindowStep = 10.seconds.toMillis
-    val WindowsPerEvent = (WindowLength / WindowStep).toInt
+    val WindowLength: Long = 10.seconds.toMillis
+    val WindowStep: Long = 10.seconds.toMillis
+    val WindowsPerEvent: Int = (WindowLength / WindowStep).toInt
 
     def windowsFor(ts: Long): Set[Window] = {
       val firstWindowStart = ts - ts % WindowStep - WindowLength + WindowStep

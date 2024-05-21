@@ -20,7 +20,6 @@ import software.amazon.awssdk.services.firehose.model.{PutRecordBatchResponseEnt
 import java.net.URI
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{Await, ExecutionContextExecutor, Future}
-import scala.util.{Failure, Success}
 
 
 /**
@@ -46,7 +45,7 @@ class FirehoseEcho(urlWithMappedPort: URI = new URI("http://localhost:4566"), ac
 
   val batchSize = 10
 
-  val credentialsProvider = StaticCredentialsProvider.create(AwsBasicCredentials.create(accessKey, secretKey))
+  val credentialsProvider: StaticCredentialsProvider = StaticCredentialsProvider.create(AwsBasicCredentials.create(accessKey, secretKey))
 
   private val s3Settings: S3Settings =
     S3Settings()
@@ -67,7 +66,7 @@ class FirehoseEcho(urlWithMappedPort: URI = new URI("http://localhost:4566"), ac
   }
   system.registerOnTermination(awsFirehoseClient.close())
 
-  def run() = {
+  def run(): Int = {
     val done = for {
       _ <- producerClientFirehose()
       filesFut <- countFilesBucket()
@@ -103,18 +102,6 @@ class FirehoseEcho(urlWithMappedPort: URI = new URI("http://localhost:4566"), ac
 
     resultFut.onComplete(result => logger.info(s"Number of files in bucket: ${result.get.size}"))
     resultFut
-  }
-
-
-  private def terminateWhen(done: Future[Seq[String]]): Unit = {
-    done.onComplete {
-      case Success(_) =>
-        logger.info(s"Flow Success. About to terminate...")
-        system.terminate()
-      case Failure(e) =>
-        logger.info(s"Flow Failure: $e. About to terminate...")
-        system.terminate()
-    }
   }
 }
 

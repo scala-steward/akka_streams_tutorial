@@ -5,7 +5,7 @@ import org.apache.pekko.pattern.{BackoffOpts, BackoffSupervisor}
 import org.apache.pekko.stream.ThrottleMode
 import org.apache.pekko.stream.scaladsl.{Sink, Source}
 
-import scala.concurrent.duration._
+import scala.concurrent.duration.*
 
 /**
   * Sample Implementation of:

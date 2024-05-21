@@ -19,7 +19,7 @@ import java.util.StringTokenizer;
  */
 public class MockApp implements ReceivingApplication<Message> {
 
-    private static HapiContext context = new DefaultHapiContext();
+    private static final HapiContext context = new DefaultHapiContext();
 
     /**
      * The parsing is done in ApplicationRouterImpl

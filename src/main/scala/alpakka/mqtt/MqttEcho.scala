@@ -46,8 +46,8 @@ object MqttEcho extends App {
   (1 to 2).par.foreach(each => clientSubscriber(each, systemClient2, host, port))
 
   def clientPublisher(id: Int, system: ActorSystem, host: String, port: Int): Unit = {
-    implicit val sys = system
-    implicit val ec = system.dispatcher
+    implicit val sys: ActorSystem = system
+    implicit val ec: ExecutionContextExecutor = system.dispatcher
 
     val topic = "myTopic"
     val clientId = s"Pub-$id"
@@ -66,7 +66,7 @@ object MqttEcho extends App {
         .map {
           msg =>
             // On the server each new retained message overwrites the previous one
-            val publish = Publish(ControlPacketFlags.RETAIN | ControlPacketFlags.QoSAtLeastOnceDelivery, topic, ByteString(msg.toString))
+            val publish = Publish(ControlPacketFlags.RETAIN | ControlPacketFlags.QoSAtLeastOnceDelivery, topic, ByteString(msg))
             pubClient.session ! Command(publish, None)
         }.runWith(Sink.ignore)
     }
@@ -82,8 +82,8 @@ object MqttEcho extends App {
   }
 
   def clientSubscriber(id: Int, system: ActorSystem, host: String, port: Int): Unit = {
-    implicit val sys = system
-    implicit val ec = system.dispatcher
+    implicit val sys: ActorSystem = system
+    implicit val ec: ExecutionContextExecutor = system.dispatcher
 
     val topic = "myTopic"
     val clientId = s"Sub-$id"
@@ -115,7 +115,7 @@ object MqttEcho extends App {
 
   // Common client for Publisher/Subscriber
   private def client(clientId: String, system: ActorSystem, host: String, port: Int, connAckPromise: Promise[Unit]): MqttClient = {
-    implicit val sys = system
+    implicit val sys: ActorSystem = system
     implicit val ec: ExecutionContextExecutor = system.dispatcher
 
     logger.info(s"$clientId starting...")

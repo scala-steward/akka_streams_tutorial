@@ -5,8 +5,9 @@ import alpakka.tcp_to_websockets.websockets.WebsocketConnectionStatusActor.Conne
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.serialization.{StringDeserializer, StringSerializer}
-import org.apache.pekko.actor.ActorSystem
-import org.apache.pekko.kafka._
+import org.apache.pekko.Done
+import org.apache.pekko.actor.{ActorRef, ActorSystem}
+import org.apache.pekko.kafka.*
 import org.apache.pekko.kafka.scaladsl.Consumer.Control
 import org.apache.pekko.kafka.scaladsl.{Consumer, Transactional}
 import org.apache.pekko.pattern.{BackoffOpts, BackoffSupervisor}
@@ -16,7 +17,7 @@ import org.apache.pekko.util.Timeout
 import org.slf4j.{Logger, LoggerFactory}
 
 import java.util.concurrent.atomic.AtomicReference
-import scala.concurrent.duration._
+import scala.concurrent.duration.*
 import scala.concurrent.{Await, Future}
 
 /**
@@ -42,12 +43,12 @@ class Kafka2Websocket(mappedPortKafka: Int = 9092) {
 
   var streamControl: AtomicReference[Control] = _
 
-  def run() = {
+  def run(): Unit = {
     streamControl = createAndRunConsumer(clientID)
     logger.info(s"Receiving messages form Kafka on: $bootstrapServers")
   }
 
-  def stop() = {
+  def stop(): Future[Done] = {
     streamControl.get.shutdown()
   }
 
@@ -59,7 +60,7 @@ class Kafka2Websocket(mappedPortKafka: Int = 9092) {
       .withProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest")
   }
 
-  def createProducerSettings = {
+  def createProducerSettings: ProducerSettings[String, String] = {
     ProducerSettings(system, new StringSerializer, new StringSerializer)
       .withBootstrapServers(bootstrapServers)
   }
@@ -74,7 +75,7 @@ class Kafka2Websocket(mappedPortKafka: Int = 9092) {
   initializeTopic(transactionalProducerTopic)
 
 
-  def websocketClient(clientID: String, endpoint: String) = {
+  def websocketClient(clientID: String, endpoint: String): (ActorRef, ActorRef) = {
     val websocketConnectionStatusActor = system.actorOf(WebsocketConnectionStatusActor.props(clientID, endpoint), name = "WebsocketConnectionStatus")
 
     val supervisor = BackoffSupervisor.props(

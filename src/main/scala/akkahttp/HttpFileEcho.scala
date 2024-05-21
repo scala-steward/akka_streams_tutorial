@@ -142,7 +142,7 @@ object HttpFileEcho extends App with JsonProtocol {
     }
   }
 
-  def roundtripClient(id: Int, address: String, port: Int) = {
+  def roundtripClient(id: Int, address: String, port: Int): Unit = {
     val fileHandle = uploadClient(id, address, port)
     fileHandle.onComplete {
       case Success(each) => downloadClient(id, each, address, port)
@@ -188,7 +188,7 @@ object HttpFileEcho extends App with JsonProtocol {
 
     def upload(file: File): Future[FileHandle] = {
 
-      def delayRequestSoTheServerIsNotHammered() = {
+      def delayRequestSoTheServerIsNotHammered(): Unit = {
         val (start, end) = (1000, 5000)
         val rnd = new scala.util.Random
         val sleepTime = start + rnd.nextInt((end - start) + 1)
@@ -239,7 +239,7 @@ object HttpFileEcho extends App with JsonProtocol {
         .runWith(FileIO.toPath(Paths.get(localFile.getAbsolutePath)))
     }
 
-    def download(remoteFileHandle: FileHandle, localFile: File) = {
+    def download(remoteFileHandle: FileHandle, localFile: File): Unit = {
 
       val result = for {
         reqEntity <- Marshal(remoteFileHandle).to[RequestEntity]

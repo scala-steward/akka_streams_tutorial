@@ -5,8 +5,8 @@ import org.apache.pekko.actor.ActorSystem
 import org.apache.pekko.stream.DelayOverflowStrategy
 import org.apache.pekko.stream.scaladsl.{Flow, MergeHub, RunnableGraph, Sink, Source}
 
-import scala.collection.parallel.CollectionConverters._
-import scala.concurrent.duration._
+import scala.collection.parallel.CollectionConverters.*
+import scala.concurrent.duration.*
 
 /**
   * Inspired by:

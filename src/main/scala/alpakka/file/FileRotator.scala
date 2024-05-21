@@ -8,7 +8,7 @@ import org.slf4j.{Logger, LoggerFactory}
 
 import java.io.File
 import java.nio.file.Path
-import java.nio.file.StandardOpenOption._
+import java.nio.file.StandardOpenOption.*
 
 /**
   * Inspired by:

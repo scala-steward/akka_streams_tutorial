@@ -22,7 +22,7 @@ import java.util.stream.IntStream;
  */
 public class Hl7TcpClientClassic {
     private static final Logger LOGGER = LoggerFactory.getLogger(Hl7TcpClientClassic.class);
-    private static HapiContext context = new DefaultHapiContext();
+    private static final HapiContext context = new DefaultHapiContext();
 
     private static final int PORT_NUMBER = 6160;
 
@@ -56,7 +56,7 @@ public class Hl7TcpClientClassic {
                 } catch (IOException e) {
                     // TODO handle connection exceptions and retry, currently in-flight message is lost
                     LOGGER.error("Inner Ex during message processing:",  e);
-                    // At least a new tcp connection will used for the next message
+                    // At least a new tcp connection will be used for the next message
                     connectionWithServer.close();
                     connectionWithServer = null;
                 }

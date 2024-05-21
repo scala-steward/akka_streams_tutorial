@@ -12,7 +12,7 @@ import org.apache.pekko.stream.{FlowShape, Graph}
 import org.apache.pekko.util.Timeout
 import org.apache.pekko.{Done, NotUsed}
 
-import scala.concurrent.duration._
+import scala.concurrent.duration.*
 
 /**
   * Consumers W.1 and W.2 consume partitions within the "wordcount consumer group"
@@ -48,7 +48,7 @@ object WordCountConsumer extends App {
   }
 
   def createAndRunConsumerWordCount(id: String) = {
-    implicit val askTimeout = Timeout(5.seconds)
+    implicit val askTimeout: Timeout = Timeout(5.seconds)
 
     val writeFlow = Flow[ConsumerMessage.CommittableMessage[String, java.lang.Long]]
       .map(msg => IncrementWord(msg, id))
@@ -62,7 +62,7 @@ object WordCountConsumer extends App {
   }
 
   def createAndRunConsumerMessageCount(id: String) = {
-    implicit val askTimeout = Timeout(5.seconds)
+    implicit val askTimeout: Timeout = Timeout(5.seconds)
 
     val writeFlow = Flow[ConsumerMessage.CommittableMessage[String, java.lang.Long]]
       .map(msg => IncrementMessage(msg, id))
@@ -93,7 +93,7 @@ object WordCountConsumer extends App {
 
     def apply[A, T, O](processingFlow: Flow[A, T, NotUsed], output: (T, A) => O): Graph[FlowShape[A, O], NotUsed] =
       Flow.fromGraph(GraphDSL.create() { implicit builder => {
-        import GraphDSL.Implicits._
+        import GraphDSL.Implicits.*
 
         val broadcast = builder.add(Broadcast[A](2))
         val zip = builder.add(ZipWith[T, A, O]((left, right) => output(left, right)))

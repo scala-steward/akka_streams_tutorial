@@ -10,7 +10,7 @@ import ca.uhn.hl7v2.util.Terser;
 
 /**
  * Example code illustrating how to handle multiple versions of HL7 from one codebase
- *
+ * <br>
  * Stolen from:
  * https://github.com/hapifhir/hapi-hl7v2/blob/master/hapi-examples/src/main/java/ca/uhn/hl7v2/examples/HandlingMultipleVersions.java
  */

@@ -19,8 +19,8 @@ import org.slf4j.{Logger, LoggerFactory}
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicInteger
 import scala.collection.parallel.CollectionConverters.ImmutableIterableIsParallelizable
-import scala.concurrent.duration.DurationInt
 import scala.concurrent.*
+import scala.concurrent.duration.DurationInt
 import scala.util.{Failure, Success}
 
 /**
@@ -94,7 +94,7 @@ object ReverseProxy extends App {
     clients.par.foreach(clientID => httpClient(clientID, proxyHost, proxyPort, mode, requestsPerClient))
 
     def httpClient(clientId: Int, proxyHost: String, proxyPort: Int, targetHost: Mode, nbrOfRequests: Int) = {
-      def logResponse(response: HttpResponse) = {
+      def logResponse(response: HttpResponse): Unit = {
         val id = response.getHeader("X-Correlation-ID").orElse(RawHeader("X-Correlation-ID", "N/A")).value()
         val msg = response.entity.dataBytes.runReduce(_ ++ _).map(data => data.utf8String)
         msg.onComplete(msg => logger.info(s"Client: $clientId got response: ${response.status.intValue()} for id: $id and msg: ${msg.getOrElse("N/A")}"))

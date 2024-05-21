@@ -25,10 +25,8 @@ public class DemoMessagesActor extends AbstractLoggingActor {
 				.addTask(
 						CoordinatedShutdown.PhaseBeforeServiceUnbind(),
 						"stop",
-						() -> {
-							return akka.pattern.Patterns.ask(demoActor, new Stop(), Duration.ofSeconds(5))
-									.thenApply(reply -> Done.getInstance());
-						});
+						() -> Patterns.ask(demoActor, new Stop(), Duration.ofSeconds(5))
+								.thenApply(reply -> Done.getInstance()));
 
 		//Tell: Fire and forget
 		demoActor.tell(new GreetingTell("Hi tell"), ActorRef.noSender());
@@ -70,7 +68,7 @@ public class DemoMessagesActor extends AbstractLoggingActor {
 	/**
 	 * Create Props for an actor of this type.
 	 *
-	 * @param initValue The inital value for the counterTell is passed to this actor’s constructor.
+	 * @param initValue The initial value for the counterTell is passed to this actor’s constructor.
 	 * @return a Props for creating this actor, which can then be further configured
 	 * (e.g. calling `.withDispatcher()` on it)
 	 */

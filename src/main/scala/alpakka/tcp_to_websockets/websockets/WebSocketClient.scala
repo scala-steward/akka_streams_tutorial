@@ -5,7 +5,7 @@ import org.apache.pekko.Done
 import org.apache.pekko.actor.{ActorRef, ActorSystem}
 import org.apache.pekko.http.scaladsl.Http
 import org.apache.pekko.http.scaladsl.model.StatusCodes
-import org.apache.pekko.http.scaladsl.model.ws._
+import org.apache.pekko.http.scaladsl.model.ws.*
 import org.apache.pekko.stream.scaladsl.{Flow, Keep, Sink, Source, SourceQueue}
 import org.apache.pekko.stream.{OverflowStrategy, QueueOfferResult}
 import org.slf4j.{Logger, LoggerFactory}
@@ -17,7 +17,7 @@ object WebSocketClient {
   def apply(id: String, endpoint: String, websocketClientActor: ActorRef)
            (implicit
             system: ActorSystem,
-            executionContext: ExecutionContext) = {
+            executionContext: ExecutionContext): WebSocketClient = {
     new WebSocketClient(id, endpoint, websocketClientActor)(system, executionContext)
   }
 }
@@ -32,7 +32,7 @@ class WebSocketClient(id: String, endpoint: String, websocketClientActor: ActorR
   val sourceQueue: Future[SourceQueue[Message]] = singleWebSocketRequestSourceQueueClient(id, endpoint)
 
 
-  def singleWebSocketRequestSourceQueueClient(id: String, endpoint: String) = {
+  def singleWebSocketRequestSourceQueueClient(id: String, endpoint: String): Future[SourceQueue[Message]] = {
 
     val (source, sourceQueue) = {
       val p = Promise[SourceQueue[Message]]()

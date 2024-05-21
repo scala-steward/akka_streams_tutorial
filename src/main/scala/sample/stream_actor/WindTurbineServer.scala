@@ -1,12 +1,12 @@
 package sample.stream_actor
 
-import io.circe.generic.auto._
+import io.circe.generic.auto.*
 import org.apache.pekko.Done
 import org.apache.pekko.actor.{ActorSystem, Props}
 import org.apache.pekko.http.scaladsl.Http
 import org.apache.pekko.http.scaladsl.Http.ServerBinding
 import org.apache.pekko.http.scaladsl.model.ws.{Message, TextMessage}
-import org.apache.pekko.http.scaladsl.server.Directives._
+import org.apache.pekko.http.scaladsl.server.Directives.*
 import org.apache.pekko.stream.scaladsl.{Flow, Source}
 import org.apache.pekko.util.Timeout
 import org.slf4j.{Logger, LoggerFactory}
@@ -42,7 +42,7 @@ object WindTurbineServer {
         .toOption.get
     }
 
-    def ack(aString: String) = TextMessage(Source.single("Ack from server: " + aString))
+    def ack(aString: String): TextMessage = TextMessage(Source.single("Ack from server: " + aString))
   }
 
 
@@ -72,7 +72,7 @@ object WindTurbineServer {
       .mapAsync(1) {
         case (lastMessage: String, measurements: Seq[MeasurementsContainer]) =>
           import org.apache.pekko.pattern.ask
-          implicit val askTimeout = Timeout(30.seconds)
+          implicit val askTimeout: Timeout = Timeout(30.seconds)
 
           //generateRandomServerError()
 
@@ -124,10 +124,10 @@ object WindTurbineServer {
     * org.apache.pekko.http.scaladsl.model.ws.PeerClosedConnectionException: Peer closed connection with code 1011 'internal error'
     * and are able to recover due to the RestartSource used
     */
-  private def generateRandomServerError() = {
+  private def generateRandomServerError(): Unit = {
     val time = LocalTime.now()
     if (time.getSecond > 50) {
-      println(s"Server RuntimeException at: $time");
+      println(s"Server RuntimeException at: $time")
       throw new RuntimeException("BOOM - server RuntimeException")
     }
   }

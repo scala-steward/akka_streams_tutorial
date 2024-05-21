@@ -2,7 +2,7 @@ package sample.stream
 
 import org.apache.pekko.NotUsed
 import org.apache.pekko.actor.ActorSystem
-import org.apache.pekko.stream.scaladsl._
+import org.apache.pekko.stream.scaladsl.*
 import org.apache.pekko.util.ByteString
 
 import java.nio.file.Paths

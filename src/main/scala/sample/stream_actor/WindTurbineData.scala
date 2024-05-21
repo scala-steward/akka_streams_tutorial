@@ -11,7 +11,7 @@ object WindTurbineData {
 }
 
 class WindTurbineData(id: String) {
-  val random = Random
+  val random: Random.type = Random
 
   def getNext: String = {
     val timestamp = System.currentTimeMillis / 1000

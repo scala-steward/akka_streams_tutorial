@@ -22,7 +22,7 @@ class SrtParser(sourceFilePath: String) {
   implicit val system: ActorSystem = ActorSystem()
   implicit val executionContext: ExecutionContextExecutor = system.dispatcher
 
-  val ls = sys.props("line.separator")
+  val ls: String = sys.props("line.separator")
 
   private val frameByEmptyLine = Framing.delimiter(
     ByteString(ls + ls),
@@ -70,7 +70,7 @@ object SrtParser extends App {
 case class SubtitleBlock(start: Long, end: Long, lines: Seq[String]) {
   val logger: Logger = LoggerFactory.getLogger(this.getClass)
   val endLineTag = "\n" // for openAI API
-  val ls = sys.props("line.separator") // for file IO
+  val ls: String = sys.props("line.separator") // for file IO
 
   def allLines: String = lines.mkString(" ")
 

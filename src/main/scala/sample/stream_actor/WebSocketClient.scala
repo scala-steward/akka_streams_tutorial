@@ -1,14 +1,15 @@
 package sample.stream_actor
 
+import org.apache.pekko.NotUsed
 import org.apache.pekko.actor.{ActorRef, ActorSystem}
 import org.apache.pekko.http.scaladsl.Http
 import org.apache.pekko.http.scaladsl.model.StatusCodes
-import org.apache.pekko.http.scaladsl.model.ws._
+import org.apache.pekko.http.scaladsl.model.ws.*
 import org.apache.pekko.stream.scaladsl.{Flow, GraphDSL, Keep, Sink, Source}
-import org.apache.pekko.stream.{FlowShape, SourceShape}
-import sample.stream_actor.WindTurbineSimulator._
+import org.apache.pekko.stream.{FlowShape, Graph, SourceShape}
+import sample.stream_actor.WindTurbineSimulator.*
 
-import scala.concurrent.duration._
+import scala.concurrent.duration.*
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
 
@@ -16,7 +17,7 @@ object WebSocketClient {
   def apply(id: String, endpoint: String, windTurbineSimulator: ActorRef)
            (implicit
             system: ActorSystem,
-            executionContext: ExecutionContext) = {
+            executionContext: ExecutionContext): WebSocketClient = {
     new WebSocketClient(id, endpoint, windTurbineSimulator)(system, executionContext)
   }
 }
@@ -32,7 +33,7 @@ class WebSocketClient(id: String, endpoint: String, windTurbineSimulator: ActorR
     Http().webSocketClientFlow(WebSocketRequest(websocketUri))
   }
 
-  val outgoing = GraphDSL.create() { implicit builder =>
+  val outgoing: Graph[SourceShape[TextMessage.Strict], NotUsed] = GraphDSL.create() { implicit builder =>
     val data = WindTurbineData(id)
 
     val flow = builder.add {
@@ -43,7 +44,7 @@ class WebSocketClient(id: String, endpoint: String, windTurbineSimulator: ActorR
     SourceShape(flow.out)
   }
 
-  val incoming = GraphDSL.create() { implicit builder =>
+  val incoming: Graph[FlowShape[Message, Unit], NotUsed] = GraphDSL.create() { implicit builder =>
     val flow = builder.add {
       Flow[Message]
         .collect {
@@ -67,7 +68,7 @@ class WebSocketClient(id: String, endpoint: String, windTurbineSimulator: ActorR
     .run()
 
 
-  val connected =
+  val connected: Future[Unit] =
     upgradeResponse.map { upgrade =>
       upgrade.response.status match {
         case StatusCodes.SwitchingProtocols => windTurbineSimulator ! Upgraded

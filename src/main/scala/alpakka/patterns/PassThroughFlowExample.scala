@@ -2,7 +2,7 @@ package alpakka.patterns
 
 import org.apache.pekko.NotUsed
 import org.apache.pekko.actor.ActorSystem
-import org.apache.pekko.stream.scaladsl.{Flow, Source, _}
+import org.apache.pekko.stream.scaladsl.{Flow, Source, *}
 import org.apache.pekko.stream.{FlowShape, Graph, OverflowStrategy}
 
 import java.time.LocalDateTime
@@ -39,7 +39,7 @@ object PassThroughFlow {
 
   def apply[A, T, O](processingFlow: Flow[A, T, NotUsed], output: (T, A) => O): Graph[FlowShape[A, O], NotUsed] =
     Flow.fromGraph(GraphDSL.create() { implicit builder => {
-      import GraphDSL.Implicits._
+      import GraphDSL.Implicits.*
 
       val broadcast = builder.add(Broadcast[A](2))
       val zip = builder.add(ZipWith[T, A, O]((left, right) => output(left, right)))

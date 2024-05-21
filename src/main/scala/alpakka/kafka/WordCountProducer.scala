@@ -12,7 +12,7 @@ import org.apache.pekko.stream.scaladsl.{Keep, Sink, Source}
 import org.apache.pekko.{Done, NotUsed}
 
 import scala.concurrent.Future
-import scala.concurrent.duration._
+import scala.concurrent.duration.*
 
 /**
   * Produce unbounded text messages to the topic wordcount-input

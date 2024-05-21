@@ -43,8 +43,8 @@ public class MinioContainer extends GenericContainer<MinioContainer> {
 
 
     public static class CredentialsProvider {
-        private String accessKey;
-        private String secretKey;
+        private final String accessKey;
+        private final String secretKey;
 
         public CredentialsProvider(String accessKey, String secretKey) {
             this.accessKey = accessKey;

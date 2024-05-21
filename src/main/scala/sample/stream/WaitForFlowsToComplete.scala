@@ -1,15 +1,15 @@
 package sample.stream
 
 import org.apache.pekko.actor.ActorSystem
-import org.apache.pekko.stream._
-import org.apache.pekko.stream.scaladsl._
+import org.apache.pekko.stream.*
+import org.apache.pekko.stream.scaladsl.*
 import org.apache.pekko.util.ByteString
 import org.slf4j.{Logger, LoggerFactory}
 
 import java.nio.file.Paths
 import java.time.LocalTime
-import scala.concurrent._
-import scala.concurrent.duration._
+import scala.concurrent.*
+import scala.concurrent.duration.*
 import scala.util.{Failure, Success}
 
 /**
@@ -50,14 +50,14 @@ object WaitForFlowsToComplete extends App {
   val slowFaultyFlow = factorialsSource
     .map(_.toString)
     .throttle(1, 1.second, 1, ThrottleMode.shaping)
-    .map(each => simulateFaultyProcessing(false, each))
+    .map(each => simulateFaultyProcessing(isFaulty = false, each))
     .runWith(lineSink("factorial_slow_faulty.txt"))
 
   //processWithForComprehension()
 
   processWithFutureSequence()
 
-  private def processWithForComprehension() = {
+  private def processWithForComprehension(): Unit = {
     val allDone = for {
       slowFaultyFlowDone <- slowFaultyFlow
       slowFlowDone <- slowFlow
@@ -75,7 +75,7 @@ object WaitForFlowsToComplete extends App {
   }
 
   // Allows for more control
-  private def processWithFutureSequence() = {
+  private def processWithFutureSequence(): Unit = {
 
     // completes when either:
     //  - all futures have completed successfully, or

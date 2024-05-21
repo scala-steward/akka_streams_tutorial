@@ -111,7 +111,7 @@ public class OpenAICompletions {
     }
 
     private static ImmutablePair<String, Integer> extractPayloadChatCompletions(String jsonResponseChatCompletions) {
-        LOGGER.info("Raw response JSON: " + jsonResponseChatCompletions);
+        LOGGER.info("Raw response JSON: {}", jsonResponseChatCompletions);
         JSONObject obj = new JSONObject(jsonResponseChatCompletions);
 
         // Check raw response to see cause of parsing ex
@@ -125,7 +125,7 @@ public class OpenAICompletions {
     }
 
     private ImmutablePair<String, Integer> extractPayloadCompletions(String jsonResponseCompletions) {
-        LOGGER.info("Raw response JSON: " + jsonResponseCompletions);
+        LOGGER.info("Raw response JSON: {}", jsonResponseCompletions);
         JSONObject obj = new JSONObject(jsonResponseCompletions);
 
         // Check raw response to see cause of parsing ex

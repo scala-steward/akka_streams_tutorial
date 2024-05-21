@@ -1,22 +1,22 @@
 package alpakka.file
 
 import org.apache.pekko.actor.ActorSystem
-import org.apache.pekko.stream._
+import org.apache.pekko.stream.*
 import org.apache.pekko.stream.connectors.file.ArchiveMetadata
 import org.apache.pekko.stream.connectors.file.scaladsl.Archive
-import org.apache.pekko.stream.scaladsl._
-import org.apache.pekko.stream.stage._
+import org.apache.pekko.stream.scaladsl.*
+import org.apache.pekko.stream.stage.*
 import org.apache.pekko.util.ByteString
 import org.slf4j.{Logger, LoggerFactory}
 
 import java.io.FileInputStream
 import java.nio.file.Paths
-import java.security._
-import javax.crypto._
+import java.security.*
+import javax.crypto.*
 import javax.crypto.spec.{GCMParameterSpec, IvParameterSpec, SecretKeySpec}
 import scala.concurrent.Await
-import scala.concurrent.duration._
-import scala.jdk.CollectionConverters._
+import scala.concurrent.duration.*
+import scala.jdk.CollectionConverters.*
 import scala.util.{Failure, Success}
 
 /** File echo flow with Zip archive/un-archive and AES 256 CBC/GCM encryption/decryption:
@@ -43,10 +43,10 @@ import scala.util.{Failure, Success}
   */
 
 private[this] class AesStage(cipher: Cipher) extends GraphStage[FlowShape[ByteString, ByteString]] {
-  val in = Inlet[ByteString]("in")
-  val out = Outlet[ByteString]("out")
+  val in: Inlet[ByteString] = Inlet[ByteString]("in")
+  val out: Outlet[ByteString] = Outlet[ByteString]("out")
 
-  override val shape = FlowShape.of(in, out)
+  override val shape: FlowShape[ByteString, ByteString] = FlowShape.of(in, out)
 
   override def createLogic(inheritedAttributes: Attributes): GraphStageLogic =
     new GraphStageLogic(shape) {

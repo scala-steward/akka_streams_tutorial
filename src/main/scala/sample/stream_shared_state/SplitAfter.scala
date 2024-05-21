@@ -5,9 +5,9 @@ import org.apache.pekko.stream.scaladsl.{Sink, Source}
 import org.slf4j.{Logger, LoggerFactory}
 
 import java.time.{Instant, LocalDateTime, ZoneOffset}
-import scala.collection.immutable._
+import scala.collection.immutable.*
 import scala.concurrent.Future
-import scala.concurrent.duration._
+import scala.concurrent.duration.*
 import scala.util.{Failure, Success}
 
 /**
@@ -60,7 +60,7 @@ object SplitAfter extends App {
   terminateWhen(done)
 
 
-  def terminateWhen(done: Future[_]) = {
+  def terminateWhen(done: Future[?]): Unit = {
     done.onComplete {
       case Success(_) =>
         println("Flow Success. About to terminate...")

@@ -1,7 +1,7 @@
 package sample.stream
 
 import org.apache.pekko.actor.ActorSystem
-import org.apache.pekko.stream.scaladsl._
+import org.apache.pekko.stream.scaladsl.*
 
 import scala.concurrent.Future
 import scala.util.{Failure, Success}

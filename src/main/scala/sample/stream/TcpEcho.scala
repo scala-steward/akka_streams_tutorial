@@ -7,10 +7,10 @@ import org.apache.pekko.util.ByteString
 import org.slf4j.{Logger, LoggerFactory}
 
 import java.net.InetSocketAddress
-import scala.collection.parallel.CollectionConverters._
+import scala.collection.parallel.CollectionConverters.*
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContextExecutor, Future}
-import scala.sys.process._
+import scala.sys.process.*
 import scala.util.{Failure, Success}
 
 /**
@@ -114,7 +114,7 @@ object TcpEcho extends App {
     closed.onComplete(each => logger.info(s"Client: $id closed: $each"))
   }
 
-  private def checkResources() = {
+  private def checkResources(): Unit = {
     // Depending on the available file descriptors of the OS we may experience client retries
     val os = System.getProperty("os.name").toLowerCase
     if (os == "mac os x") {

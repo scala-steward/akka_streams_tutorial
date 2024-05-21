@@ -48,7 +48,7 @@ object CalculateMedian extends App {
   }
 
   def medianUpTo5(five: Array[Double]): Double = {
-    def order2(a: Array[Double], i: Int, j: Int) = {
+    def order2(a: Array[Double], i: Int, j: Int): Unit = {
       if (a(i) > a(j)) {
         val t = a(i)
         a(i) = a(j)
@@ -86,6 +86,7 @@ object CalculateMedian extends App {
     }
   }
 
+  @tailrec
   def medianOfMedians(arr: Array[Double]): Double = {
     val medians = arr.grouped(5).map(medianUpTo5).toArray
     if (medians.length <= 5) medianUpTo5(medians)

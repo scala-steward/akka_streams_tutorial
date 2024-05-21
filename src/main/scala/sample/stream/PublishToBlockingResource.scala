@@ -6,8 +6,8 @@ import org.apache.pekko.stream.DelayOverflowStrategy
 import org.apache.pekko.stream.scaladsl.{Flow, Sink, Source}
 
 import java.util.concurrent.{ArrayBlockingQueue, BlockingQueue}
-import scala.collection.parallel.CollectionConverters._
-import scala.concurrent.duration._
+import scala.collection.parallel.CollectionConverters.*
+import scala.concurrent.duration.*
 import scala.util.Failure
 
 /**

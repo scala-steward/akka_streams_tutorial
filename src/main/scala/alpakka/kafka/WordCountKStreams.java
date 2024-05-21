@@ -51,8 +51,8 @@ public class WordCountKStreams {
 
         KTable<String, Long> wordCount = textLines
                 .flatMapValues(textLine -> Arrays.asList(textLine.toLowerCase().split("\\W+")))
-                .filter((key, value) -> (!(value.equals("truth")))) //we don't want that do we?
-                .filter((key, value) -> (!(value.equals(""))))
+                .filter((key, value) -> (!(value.equals("truth"))))
+                .filter((key, value) -> (!(value.isEmpty())))
                 //.peek((key, value) -> System.out.println("Processing WORD count key: " + key + " with value: " + value))
                 .groupBy((key, word) -> word)
                 .count(Materialized.as("count-word-store"));

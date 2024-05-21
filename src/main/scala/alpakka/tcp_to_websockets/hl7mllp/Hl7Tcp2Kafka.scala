@@ -49,20 +49,20 @@ class Hl7Tcp2Kafka(mappedPortKafka: Int = 9092) extends MllpProtocol {
   //initial msg in topic, required to create the topic before any consumer subscribes to it
   val InitialMsg = "InitialMsg"
   val partition0 = 0
-  val producerSettings = ProducerSettings(system, new StringSerializer, new StringSerializer)
+  val producerSettings: ProducerSettings[String, String] = ProducerSettings(system, new StringSerializer, new StringSerializer)
     .withBootstrapServers(bootstrapServers)
-  val producer = initializeTopic(topic)
-  val adminClient = initializeAdminClient(bootstrapServers)
+  val producer: Producer[String, String] = initializeTopic(topic)
+  val adminClient: AdminClient = initializeAdminClient(bootstrapServers)
 
   val (address, port) = ("127.0.0.1", 6160)
   var serverBinding: Future[Tcp.ServerBinding] = _
 
-  def run() = {
+  def run(): Unit = {
     serverBinding = server(address, port)
     logger.info(s"Sending messages to Kafka on: $bootstrapServers")
   }
 
-  def stop() = {
+  def stop(): Future[Unit] = {
     serverBinding.map { b =>
       b.unbind().onComplete {
         _ =>
@@ -197,7 +197,7 @@ class Hl7Tcp2Kafka(mappedPortKafka: Int = 9092) extends MllpProtocol {
     producer
   }
 
-  def initializeAdminClient(bootstrapServers: String) = {
+  def initializeAdminClient(bootstrapServers: String): AdminClient = {
     val prop = new Properties()
     prop.setProperty("bootstrap.servers", bootstrapServers)
     AdminClient.create(prop)

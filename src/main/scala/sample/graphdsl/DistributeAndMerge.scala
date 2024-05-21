@@ -2,8 +2,8 @@ package sample.graphdsl
 
 import org.apache.pekko.NotUsed
 import org.apache.pekko.actor.ActorSystem
-import org.apache.pekko.stream._
-import org.apache.pekko.stream.scaladsl._
+import org.apache.pekko.stream.*
+import org.apache.pekko.stream.scaladsl.*
 
 import scala.concurrent.Future
 import scala.util.hashing.MurmurHash3
@@ -26,19 +26,20 @@ object DistributeAndMerge extends App {
 
   import system.dispatcher
 
-  def sampleAsyncCall(x: Int): Future[Int] = Future {
+  private def sampleAsyncCall(x: Int): Future[Int] = Future {
     Thread.sleep((x * 100L) % 10)
     println(s"Async call for value: $x processed by: ${Thread.currentThread().getName}")
     x
   }
 
+  // @formatter:off
   /**
     * Example based on numBuckets = 3
-    * --- bucket 1 flow --- ~mapAsync(parallelism)~ ---
-    * |------------------| /                                                  \|---------------|
+    *                                          --- bucket 1 flow --- ~mapAsync(parallelism)~ ---
+    *                   |------------------| /                                                  \|---------------|
     * Open inlet[A] --- | Partition Fan Out|  --- bucket 2 flow --- ~mapAsync(parallelism)~ -----| Merge Fan In  | --- Open outlet[B]
-    * |------------------| \                                                  /|---------------|
-    * --- bucket 3 flow --- ~mapAsync(parallelism)~ ---
+    *                   |------------------| \                                                  /|---------------|
+    *                                         --- bucket 3 flow --- ~mapAsync(parallelism)~ ---
     *
     * @param numBuckets  the number of sub-flows to create
     * @param parallelism the mapAsync (ordered) parallelism per sub-flow
@@ -48,12 +49,13 @@ object DistributeAndMerge extends App {
     * @tparam B is the output streams of elements of type B
     * @return a Flow of elements from type A to type B
     */
-  def hashingDistribution[A, B](numBuckets: Int,
-                                parallelism: Int,
-                                hash: A => Int,
-                                fn: A => Future[B]): Flow[A, B, NotUsed] = {
+  // @formatter:on
+  private def hashingDistribution[A, B](numBuckets: Int,
+                                        parallelism: Int,
+                                        hash: A => Int,
+                                        fn: A => Future[B]): Flow[A, B, NotUsed] = {
     Flow.fromGraph(GraphDSL.create() { implicit builder =>
-      import GraphDSL.Implicits._
+      import GraphDSL.Implicits.*
       val numPorts = numBuckets
       val partitioner =
         builder.add(Partition[A](outputPorts = numPorts, partitioner = a => math.abs(hash(a)) % numPorts))

@@ -1,11 +1,12 @@
 package sample.stream_shared_state
 
 import org.apache.pekko.event.Logging
+import org.apache.pekko.stream.*
 import org.apache.pekko.stream.ActorAttributes.SupervisionStrategy
-import org.apache.pekko.stream._
+import org.apache.pekko.stream.Supervision.Decider
 import org.apache.pekko.stream.stage.{GraphStage, GraphStageLogic, InHandler, OutHandler}
 
-import scala.compat.java8.FunctionConverters._
+import scala.compat.java8.FunctionConverters.*
 import scala.util.control.NonFatal
 
 object Deduplicate {
@@ -42,15 +43,15 @@ final class Deduplicate[T, U](key: T => U, duplicateCount: Long = Long.MaxValue,
 
   require(duplicateCount >= 2)
 
-  val in = Inlet[T](Logging.simpleName(this) + ".in")
-  val out = Outlet[T](Logging.simpleName(this) + ".out")
-  override val shape = FlowShape(in, out)
+  val in: Inlet[T] = Inlet[T](Logging.simpleName(this) + ".in")
+  val out: Outlet[T] = Outlet[T](Logging.simpleName(this) + ".out")
+  override val shape: FlowShape[T, T] = FlowShape(in, out)
 
   override def toString: String = "Deduplicate"
 
   override def createLogic(inheritedAttributes: Attributes): GraphStageLogic =
     new GraphStageLogic(shape) with OutHandler with InHandler {
-      def decider = inheritedAttributes.get[SupervisionStrategy].map(_.decider).getOrElse(Supervision.stoppingDecider)
+      def decider: Decider = inheritedAttributes.get[SupervisionStrategy].map(_.decider).getOrElse(Supervision.stoppingDecider)
 
       override def onPush(): Unit = {
         try {
@@ -83,7 +84,7 @@ final class Deduplicate[T, U](key: T => U, duplicateCount: Long = Long.MaxValue,
   * @param value
   */
 case class MutableLong(var value: Long = 0L) {
-  def increment() = {
+  def increment(): Long = {
     value += 1
     value
   }

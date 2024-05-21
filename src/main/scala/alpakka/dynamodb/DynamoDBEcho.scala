@@ -33,7 +33,7 @@ class DynamoDBEcho(urlWithMappedPort: URI, accessKey: String, secretKey: String,
 
   private val testTableName = "testTable"
 
-  val credentialsProvider = StaticCredentialsProvider.create(AwsBasicCredentials.create(accessKey, secretKey))
+  val credentialsProvider: StaticCredentialsProvider = StaticCredentialsProvider.create(AwsBasicCredentials.create(accessKey, secretKey))
   implicit val client: DynamoDbAsyncClient = createAsyncClient()
 
   def run(noOfItems: Int): Future[Int] = {

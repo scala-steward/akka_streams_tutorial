@@ -7,7 +7,7 @@ import org.slf4j.{Logger, LoggerFactory}
 import java.io.File
 import java.util.concurrent.TimeUnit
 import scala.language.postfixOps
-import scala.sys.process._
+import scala.sys.process.*
 
 /**
   * Inspired by:
@@ -16,7 +16,7 @@ import scala.sys.process._
   * Instead of pekko-streams we use linux tools (sort/split) for each step to apply the
   * "chainsaw style" transformations to the large csv file.
   * With the additional count this does the same as: [[FlightDelayStreaming]].
-  * However the performance is not as good as in FlightDelayStreaming.
+  * However, the performance is not as good as in FlightDelayStreaming.
   *
   * Remarks:
   *  - Instead of putting all steps in a shell script, we want to use Scala [[Process]] for each step

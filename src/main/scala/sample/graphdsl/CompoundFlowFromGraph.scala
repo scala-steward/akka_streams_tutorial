@@ -24,16 +24,11 @@ object CompoundFlowFromGraph extends App {
   val processorFlow2: Flow[Int, Int, NotUsed] = Flow[Int].map(_ * 3).wireTap(each => println(s"Processed by Flow2: $each"))
   val processorFlows: Seq[Flow[Int, Int, NotUsed]] = List(processorFlow1, processorFlow2)
 
-  // A way to scale one flow
-  val parallelism = Runtime.getRuntime.availableProcessors
-  val parallelFlows: Seq[Flow[Int, Int, NotUsed]] = (1 to parallelism).map(_ => processorFlow1)
-
-
   def compoundFlowFrom[T](indexFlows: Seq[Flow[T, T, NotUsed]]): Flow[T, T, NotUsed] = {
     require(indexFlows.nonEmpty, "Cannot create compound flow without any flows to combine")
 
     Flow.fromGraph(GraphDSL.create() { implicit b =>
-      import org.apache.pekko.stream.scaladsl.GraphDSL.Implicits._
+      import org.apache.pekko.stream.scaladsl.GraphDSL.Implicits.*
 
       val broadcast: UniformFanOutShape[T, T] = b.add(Broadcast(indexFlows.size))
       val merge: UniformFanInShape[T, T] = b.add(Merge(indexFlows.size))

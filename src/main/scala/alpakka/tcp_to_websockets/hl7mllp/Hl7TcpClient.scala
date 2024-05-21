@@ -3,13 +3,13 @@ package alpakka.tcp_to_websockets.hl7mllp
 import ca.uhn.hl7v2.AcknowledgmentCode
 import org.apache.pekko.NotUsed
 import org.apache.pekko.actor.ActorSystem
-import org.apache.pekko.stream.scaladsl.{Sink, Source, Tcp}
+import org.apache.pekko.stream.scaladsl.{Flow, Sink, Source, Tcp}
 import org.apache.pekko.util.ByteString
 import org.slf4j.{Logger, LoggerFactory}
 
-import scala.collection.parallel.CollectionConverters._
+import scala.collection.parallel.CollectionConverters.*
 import scala.concurrent.Future
-import scala.concurrent.duration._
+import scala.concurrent.duration.*
 
 class Hl7TcpClient(numberOfMessages: Int = 100) extends MllpProtocol {
   val logger: Logger = LoggerFactory.getLogger(this.getClass)
@@ -18,20 +18,20 @@ class Hl7TcpClient(numberOfMessages: Int = 100) extends MllpProtocol {
   import system.dispatcher
 
   val (address, port) = ("127.0.0.1", 6160)
-  val connection = Tcp().outgoingConnection(address, port)
+  val connection: Flow[ByteString, ByteString, Future[Tcp.OutgoingConnection]] = Tcp().outgoingConnection(address, port)
 
   (1 to 1).par.foreach(each => localSingleMessageClient(each, numberOfMessages))
   //(1 to 1).par.foreach(each => localStreamingMessageClient(each, 1000))
 
-  def localSingleMessageClient(client: Int, numberOfMessages: Int): Unit = {
-    Source(1 to numberOfMessages)
+  def localSingleMessageClient(client: Int, nbrOfMgs: Int): Unit = {
+    Source(1 to nbrOfMgs)
       .throttle(1, 1.second)
       .mapAsync(1)(msgID => sendAndReceive(s"$client-$msgID", None))
       .runWith(Sink.ignore)
   }
 
-  def localStreamingMessageClient(id: Int, numberOfMesssages: Int): Unit = {
-    val hl7MllpMessages = (1 to numberOfMesssages).map(each => ByteString(encodeMllp(generateTestMessage(each.toString))))
+  def localStreamingMessageClient(id: Int, nbrOfMgs: Int): Unit = {
+    val hl7MllpMessages = (1 to nbrOfMgs).map(each => ByteString(encodeMllp(generateTestMessage(each.toString))))
     val source = Source(hl7MllpMessages).throttle(10, 1.second).via(connection)
     val closed = source.runForeach(each => logger.info(s"Client: $id received echo: ${printable(each.utf8String)}"))
     closed.onComplete(each => logger.info(s"Client: $id closed: $each"))

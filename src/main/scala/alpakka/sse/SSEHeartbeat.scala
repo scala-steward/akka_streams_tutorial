@@ -6,12 +6,12 @@ import org.apache.pekko.http.scaladsl.Http
 import org.apache.pekko.http.scaladsl.model.HttpRequest
 import org.apache.pekko.http.scaladsl.model.sse.ServerSentEvent
 import org.apache.pekko.http.scaladsl.unmarshalling.Unmarshal
-import org.apache.pekko.stream._
+import org.apache.pekko.stream.*
 import org.apache.pekko.stream.scaladsl.{Keep, RestartSource, Sink, Source}
 
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
-import scala.concurrent.duration._
+import scala.concurrent.duration.*
 import scala.language.postfixOps
 import scala.util.{Failure, Success}
 
@@ -31,11 +31,11 @@ object SSEHeartbeat extends App {
   simpleClient(address, port)  // is not recovering after RuntimeException on server
   backoffClient(address, port) // is recovering after RuntimeException on server
 
-  private def server(address: String, port: Int) = {
+  private def server(address: String, port: Int): Unit = {
 
     val route = {
-      import org.apache.pekko.http.scaladsl.marshalling.sse.EventStreamMarshalling._
-      import org.apache.pekko.http.scaladsl.server.Directives._
+      import org.apache.pekko.http.scaladsl.marshalling.sse.EventStreamMarshalling.*
+      import org.apache.pekko.http.scaladsl.server.Directives.*
 
       def timeToServerSentEvent(time: LocalTime) = ServerSentEvent(DateTimeFormatter.ISO_LOCAL_TIME.format(time))
 
@@ -49,7 +49,7 @@ object SSEHeartbeat extends App {
                 .map(_ => {
                   val time = LocalTime.now()
                   if (time.getSecond > 50) {
-                    println(s"Server RuntimeException at: $time");
+                    println(s"Server RuntimeException at: $time")
                     throw new RuntimeException("BOOM - server RuntimeException")
                   }
                   println(s"Send to client: $time")
@@ -74,9 +74,9 @@ object SSEHeartbeat extends App {
     }
   }
 
-  private def simpleClient(address: String, port: Int) = {
+  private def simpleClient(address: String, port: Int): Unit = {
 
-    import org.apache.pekko.http.scaladsl.unmarshalling.sse.EventStreamUnmarshalling._
+    import org.apache.pekko.http.scaladsl.unmarshalling.sse.EventStreamUnmarshalling.*
 
     Http()
       .singleRequest(HttpRequest(
@@ -88,7 +88,7 @@ object SSEHeartbeat extends App {
 
   private def backoffClient(address: String, port: Int) = {
 
-    import org.apache.pekko.http.scaladsl.unmarshalling.sse.EventStreamUnmarshalling._
+    import org.apache.pekko.http.scaladsl.unmarshalling.sse.EventStreamUnmarshalling.*
 
     val restartSettings = RestartSettings(1.second, 10.seconds, 0.2).withMaxRestarts(10, 1.minute)
     val restartSource = RestartSource.withBackoff(restartSettings) { () =>
@@ -108,7 +108,7 @@ object SSEHeartbeat extends App {
 
     //See PrintMoreNumbers for correctly stopping the stream
     done.map(_ => {
-      println("Reached shutdown...");
+      println("Reached shutdown...")
       killSwitch.shutdown()
     })
   }

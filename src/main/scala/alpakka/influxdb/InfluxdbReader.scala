@@ -14,7 +14,7 @@ import java.time.temporal.ChronoUnit
 import java.util
 import scala.concurrent.ExecutionContextExecutor
 import scala.concurrent.duration.DurationInt
-import scala.util.control.NonFatal;
+import scala.util.control.NonFatal
 
 /**
   *
@@ -82,7 +82,7 @@ class InfluxdbReader(baseURL: String, token: String, org: String = "testorg", bu
       .range(-1L, ChronoUnit.MINUTES)
       .filter(Restrictions.measurement().equal(mem))
       .count()
-    val out: util.List[FluxTable] = influxDBClient.getQueryApi().query(flux.toString)
+    val out: util.List[FluxTable] = influxDBClient.getQueryApi.query(flux.toString)
     if (out.isEmpty || out.get(0).getRecords.isEmpty) 0
     else out.size()
   }

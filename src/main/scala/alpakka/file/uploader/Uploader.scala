@@ -1,6 +1,6 @@
 package alpakka.file.uploader
 
-import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.actor.{ActorSystem, Terminated}
 import org.apache.pekko.http.scaladsl.Http
 import org.apache.pekko.http.scaladsl.marshalling.Marshal
 import org.apache.pekko.http.scaladsl.model.*
@@ -123,7 +123,7 @@ class Uploader(system: ActorSystem) {
     Marshal(formData).to[RequestEntity]
   }
 
-  def stop() = {
+  def stop(): Future[Terminated] = {
     logger.info("About to shutdown Uploader...")
     val fut = serverBinding.map(serverBinding => serverBinding.terminate(hardDeadline = 3.seconds))
     logger.info("Waiting for connections to terminate...")

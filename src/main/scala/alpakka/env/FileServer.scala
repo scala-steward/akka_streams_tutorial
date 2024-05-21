@@ -107,7 +107,7 @@ object FileServer extends App {
     }
   }
 
-  def randomSleeper() = {
+  def randomSleeper(): Unit = {
     val (start, end) = (1000, 10000)
     val rnd = new scala.util.Random
     val sleepTime = start + rnd.nextInt((end - start) + 1)

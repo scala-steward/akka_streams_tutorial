@@ -19,7 +19,7 @@ import java.net.InetAddress
 import java.nio.file.{Files, Paths}
 import scala.collection.immutable
 import scala.concurrent.Future
-import scala.concurrent.duration._
+import scala.concurrent.duration.*
 import scala.util.{Failure, Success}
 
 /**
@@ -184,7 +184,7 @@ object SftpEcho extends App {
     source.runWith(sink)
   }
 
-  private def moveFileNative(ftpFile: FtpFile) = {
+  private def moveFileNative(ftpFile: FtpFile): Unit = {
     val sftpClient = newSftpClient()
 
     try {
@@ -198,7 +198,7 @@ object SftpEcho extends App {
   }
 
   // works as well
-  private def uploadFileNative() = {
+  private def uploadFileNative(): Unit = {
     val resourceFileName = "testfile.jpg"
     val resourceFilePath = Paths.get(s"src/main/resources/$resourceFileName")
     val sftpClient = newSftpClient()

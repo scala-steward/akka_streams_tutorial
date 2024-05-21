@@ -7,10 +7,10 @@ import java.util.Base64;
 
 /**
  * Java 8 streaming enc/dec roundtrip "Byte by Byte"
- *
+ * <p>
  * Avoids OutOfMemoryError:
  * https://stackoverflow.com/questions/9579874/out-of-memory-when-encoding-file-to-base64
- *
+ * <p>
  * Same with pekko-streams: alpakka.file.FileIOEcho
  *
  */

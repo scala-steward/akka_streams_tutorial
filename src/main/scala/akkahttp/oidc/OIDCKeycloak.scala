@@ -5,12 +5,11 @@ import io.circe.parser.decode
 import io.circe.syntax.*
 import org.apache.pekko.actor.ActorSystem
 import org.apache.pekko.http.scaladsl.Http
-import org.apache.pekko.http.scaladsl.model.headers.{HttpChallenge, OAuth2BearerToken}
 import org.apache.pekko.http.scaladsl.model.*
+import org.apache.pekko.http.scaladsl.model.headers.{HttpChallenge, OAuth2BearerToken}
 import org.apache.pekko.http.scaladsl.server.Directives.*
-import org.apache.pekko.http.scaladsl.server.{AuthenticationFailedRejection, Directive1, RejectionHandler, Route}
+import org.apache.pekko.http.scaladsl.server.{AuthenticationFailedRejection, Directive1, Route}
 import org.apache.pekko.http.scaladsl.unmarshalling.Unmarshal
-import org.apache.pekko.util.Timeout
 import org.keycloak.TokenVerifier
 import org.keycloak.adapters.KeycloakDeploymentBuilder
 import org.keycloak.admin.client.{CreatedResponseUtil, Keycloak, KeycloakBuilder}
@@ -27,7 +26,6 @@ import java.security.{KeyFactory, PublicKey}
 import java.time.Duration
 import java.util
 import java.util.{Base64, Collections}
-import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContextExecutor, Future}
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 import scala.sys.process.{Process, stringSeqToProcess}
@@ -77,17 +75,17 @@ object OIDCKeycloak extends App with CORSHandler with JsonSupport {
 
     def initAdminClient() = {
       val keycloakAdminClient = KeycloakBuilder.builder()
-        .serverUrl(keycloak.getAuthServerUrl())
+        .serverUrl(keycloak.getAuthServerUrl)
         .realm("master")
         .clientId(adminClientId)
-        .username(keycloak.getAdminUsername())
-        .password(keycloak.getAdminPassword())
+        .username(keycloak.getAdminUsername)
+        .password(keycloak.getAdminPassword)
         .build()
-      logger.info("Connected to Keycloak server version: " + keycloakAdminClient.serverInfo().getInfo().getSystemInfo().getVersion())
+      logger.info("Connected to Keycloak server version: " + keycloakAdminClient.serverInfo().getInfo.getSystemInfo.getVersion)
       keycloakAdminClient
     }
 
-    def createTestUser(keycloakAdminClient: Keycloak) = {
+    def createTestUser(keycloakAdminClient: Keycloak): Unit = {
       val username = "test"
       val password = "test"
       val usersResource = keycloakAdminClient.realm("test").users()
@@ -118,7 +116,7 @@ object OIDCKeycloak extends App with CORSHandler with JsonSupport {
       logger.info(s"User $username/$password may sign in via: http://localhost:${keycloak.getHttpPort}/realms/test/account")
     }
 
-    def createClientConfig(keycloakAdminClient: Keycloak) = {
+    def createClientConfig(keycloakAdminClient: Keycloak): Unit = {
       val clientId = "my-test-client"
       val clientRepresentation = new ClientRepresentation()
       clientRepresentation.setClientId(clientId)
@@ -144,14 +142,7 @@ object OIDCKeycloak extends App with CORSHandler with JsonSupport {
     keycloakAdminClient
   }
 
-  def runBackendServer(keycloak: KeycloakContainer) = {
-
-    implicit def rejectionHandler = RejectionHandler.newBuilder().handle {
-      case AuthenticationFailedRejection(reason, _) => complete(StatusCodes.Unauthorized, reason.toString)
-    }.result().mapRejectionResponse(addCORSHeaders)
-
-    implicit val timeout: Timeout = Timeout(5.seconds)
-
+  def runBackendServer(keycloak: KeycloakContainer): Unit = {
     val config = new AdapterConfig()
     config.setAuthServerUrl(keycloak.getAuthServerUrl)
     config.setRealm("test")

@@ -71,7 +71,7 @@ object ZipLatestWith extends App {
   // Simulate an unbounded stream, note that the use of 'take' influences the result
   val sourceA = Source.cycle(() => List(Record("A", 1), Record("A", 3), Record("A", 5)).iterator) //.take(10)
   val sourceB = Source.cycle(() => List(Record("B", 2), Record("B", 4), Record("B", 6)).iterator) //.take(10)
-  val latestCombinedSource: Source[Record, _] =
+  val latestCombinedSource: Source[Record, ?] =
     sourceA.zipLatestWith(sourceB) { (a, b) =>
       logger.info(s"$a vs $b")
       if (a.version > b.version) a else b

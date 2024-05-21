@@ -1,6 +1,6 @@
 package alpakka.slick
 
-import com.typesafe.config.{ConfigFactory, ConfigValueFactory}
+import com.typesafe.config.{Config, ConfigFactory, ConfigValueFactory}
 import org.apache.pekko.actor.ActorSystem
 import org.apache.pekko.stream.connectors.slick.scaladsl.*
 import org.apache.pekko.stream.scaladsl.*
@@ -13,13 +13,14 @@ import scala.concurrent.{Await, Future}
 
 /**
   * DB access via Slick, for simplicity using the 'public' schema
-  * Run with integration test: alpakka.slick.SlickIT
+  * Run with integration test: [[alpakka.slick.SlickIT]]
   *
   * Doc:
   * https://doc.akka.io/docs/alpakka/current/slick.html
   * https://scala-slick.org/docs
   * https://blog.rockthejvm.com/slick
   */
+//noinspection SqlNoDataSourceInspection
 class SlickRunner(urlWithMappedPort: String) {
   val logger: Logger = LoggerFactory.getLogger(this.getClass)
   implicit val system: ActorSystem = ActorSystem()
@@ -29,7 +30,7 @@ class SlickRunner(urlWithMappedPort: String) {
   val counter = new AtomicInteger()
 
   // Tweak config url param with mapped port from container
-  val tweakedConf = ConfigFactory.empty()
+  val tweakedConf: Config = ConfigFactory.empty()
     .withValue("slick-postgres.db.url", ConfigValueFactory.fromAnyRef(urlWithMappedPort))
     .withFallback(ConfigFactory.load())
 
@@ -47,7 +48,7 @@ class SlickRunner(urlWithMappedPort: String) {
     def * = (id, name)
   }
 
-  implicit val getUserResult: AnyRef with GetResult[User] = GetResult(r => User(r.nextInt(), r.nextString()))
+  implicit val getUserResult: AnyRef & GetResult[User] = GetResult(r => User(r.nextInt(), r.nextString()))
 
   def insertUser(user: User): DBIO[Int] =
     sqlu"INSERT INTO public.users VALUES(${user.id}, ${user.name})"
@@ -57,14 +58,14 @@ class SlickRunner(urlWithMappedPort: String) {
     Slick.source(selectAllUsers).runWith(Sink.seq).map(_.toSet)
   }
 
-  def readUsersSync() = {
+  def readUsersSync(): Set[User] = {
     logger.info("About to read...")
     val result = Await.result(readUsersAsync(), 10.seconds)
     logger.info(s"Successfully read: ${result.size} users")
     result
   }
 
-  def processUsersPaged() = {
+  def processUsersPaged(): Future[Seq[Int]] = {
     val typedSelectAllUsers = TableQuery[Users]
       .result
       .withStatementParameters(
@@ -91,32 +92,32 @@ class SlickRunner(urlWithMappedPort: String) {
 
   // Discussion:
   // https://stackoverflow.com/questions/69674054/how-do-you-transform-a-fixedsqlaction-into-a-streamingdbio-in-slick/69682195#69682195
-  def getTotal() = {
+  def getTotal: Int = {
     val query = TableQuery[Users].length.result
     Await.result(session.db.run(query), 60.seconds)
   }
 
-  def createTableOnSession() = {
+  def createTableOnSession(): Int = {
     val createTable = sqlu"""CREATE TABLE public.users(id INTEGER, name VARCHAR(50))"""
     Await.result(session.db.run(createTable), 2.seconds)
   }
 
-  def dropTableOnSession() = {
+  def dropTableOnSession(): Int = {
     val dropTable = sqlu"""DROP TABLE public.users"""
     Await.result(session.db.run(dropTable), 2.seconds)
   }
 
-  def populateSync(noOfUsers: Int = 100) = {
+  def populateSync(noOfUsers: Int = 100): Unit = {
     logger.info(s"About to populate DB with: $noOfUsers users...")
     val users = (1 to noOfUsers).map(i => User(i, s"Name$i")).toSet
     val actions = users.map(insertUser)
 
     // Insert via standard Slick API, this may take some time
-    Await.result(session.db.run(DBIO.seq(actions.toList: _*)), 60.seconds)
+    Await.result(session.db.run(DBIO.seq(actions.toList *)), 60.seconds)
     logger.info("Done populating DB")
   }
 
-  def terminate() = {
+  def terminate(): Unit = {
     system.terminate()
     logger.info("About to close session...")
     session.close()

@@ -72,7 +72,7 @@ public class FirehoseEchoIT {
     }
 
     @Test
-    public void testLocal() throws InterruptedException, IOException {
+    public void testLocal() {
         FirehoseEcho firehoseEcho = new FirehoseEcho(localStack.getEndpointOverride(FIREHOSE), localStack.getAccessKey(), localStack.getSecretKey(), localStack.getRegion());
         assertThat(firehoseEcho.run()).isEqualTo(10);
 

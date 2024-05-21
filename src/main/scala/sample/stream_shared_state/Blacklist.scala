@@ -1,11 +1,11 @@
 package sample.stream_shared_state
 
 import org.apache.pekko.actor.ActorSystem
-import org.apache.pekko.stream._
+import org.apache.pekko.stream.*
 import org.apache.pekko.stream.scaladsl.{Keep, Sink, Source}
-import org.apache.pekko.stream.stage._
+import org.apache.pekko.stream.stage.*
 
-import scala.concurrent.duration._
+import scala.concurrent.duration.*
 import scala.language.reflectiveCalls
 
 /**
@@ -55,8 +55,8 @@ class StateServiceCallback[A](callback: AsyncCallback[A]) extends StateService[A
 }
 
 class ZipWithState[S, I](initState: S) extends GraphStageWithMaterializedValue[FlowShape[I, (S, I)], StateService[S]] {
-  val in = Inlet[I]("ZipWithState.in")
-  val out = Outlet[(S, I)]("ZipWithState.out")
+  val in: Inlet[I] = Inlet[I]("ZipWithState.in")
+  val out: Outlet[(S, I)] = Outlet[(S, I)]("ZipWithState.out")
 
   override val shape: FlowShape[I, (S, I)] = FlowShape.of(in, out)
 

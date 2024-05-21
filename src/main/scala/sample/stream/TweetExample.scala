@@ -8,7 +8,7 @@ import org.apache.pekko.stream.scaladsl.{Flow, MergePrioritized, Sink, Source}
 import org.slf4j.{Logger, LoggerFactory}
 
 import java.time.{Instant, ZoneId}
-import scala.concurrent.duration._
+import scala.concurrent.duration.*
 import scala.util.{Failure, Success}
 
 /**
@@ -34,7 +34,7 @@ object TweetExample extends App {
     def hashtags: Set[Hashtag] =
       body.split(" ").collect { case t if t.startsWith("#") => Hashtag(t) }.toSet
 
-    override def toString = {
+    override def toString: String = {
       val localDateTime = Instant.ofEpochMilli(timestamp).atZone(ZoneId.systemDefault()).toLocalDateTime
       s"$localDateTime - ${author.handle} tweeted: ${body.take(5)}..."
     }

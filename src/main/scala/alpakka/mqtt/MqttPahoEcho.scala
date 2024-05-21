@@ -3,16 +3,16 @@ package alpakka.mqtt
 import org.apache.pekko.Done
 import org.apache.pekko.actor.ActorSystem
 import org.apache.pekko.event.Logging
-import org.apache.pekko.stream._
-import org.apache.pekko.stream.connectors.mqtt._
+import org.apache.pekko.stream.*
+import org.apache.pekko.stream.connectors.mqtt.*
 import org.apache.pekko.stream.connectors.mqtt.scaladsl.{MqttSink, MqttSource}
-import org.apache.pekko.stream.scaladsl._
+import org.apache.pekko.stream.scaladsl.*
 import org.apache.pekko.util.ByteString
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence
 import org.slf4j.{Logger, LoggerFactory}
 
-import scala.collection.parallel.CollectionConverters._
-import scala.concurrent.duration._
+import scala.collection.parallel.CollectionConverters.*
+import scala.concurrent.duration.*
 import scala.concurrent.{Future, Promise}
 import scala.sys.process.{Process, stringSeqToProcess}
 

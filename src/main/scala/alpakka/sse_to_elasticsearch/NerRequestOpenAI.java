@@ -12,6 +12,7 @@ import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,14 +40,7 @@ public class NerRequestOpenAI {
     }
 
     public String run(String text) {
-        JSONObject requestParams = new JSONObject();
-        requestParams.put("model", "text-davinci-003");
-        requestParams.put("prompt", "Named Entity Recognition on: " + text);
-        // For testing use lower number to keep the usage low
-        requestParams.put("max_tokens", 40);
-        // Sampling temperature: Higher values means the model will take more risks (0-1)
-        // For NER this means we get not just 'Person' but also 'Organisation', 'Location'
-        requestParams.put("temperature", 0.2);
+        JSONObject requestParams = getRequestParam(text);
 
         String endpointURL = "https://api.openai.com/v1/completions";
         HttpPost request = new HttpPost(endpointURL);
@@ -73,5 +67,17 @@ public class NerRequestOpenAI {
             LOGGER.warn("Connection issue while accessing openai API endpoint: {}. Cause: ", endpointURL, e);
             throw new RuntimeException(e);
         }
+    }
+
+    private @NotNull JSONObject getRequestParam(String text) {
+        JSONObject requestParams = new JSONObject();
+        requestParams.put("model", "text-davinci-003");
+        requestParams.put("prompt", "Named Entity Recognition on: " + text);
+        // For testing use lower number to keep the usage low
+        requestParams.put("max_tokens", 40);
+        // Sampling temperature: Higher values means the model will take more risks (0-1)
+        // For NER this means we get not just 'Person' but also 'Organisation', 'Location'
+        requestParams.put("temperature", 0.2);
+        return requestParams;
     }
 }

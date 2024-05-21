@@ -27,7 +27,7 @@ object PartitionHubWithDynamicSinks extends App {
   def partitionRoundRobin(): (PartitionHub.ConsumerInfo, String) => Long = {
     var i = -1L
 
-    (info: PartitionHub.ConsumerInfo, each: String) => {
+    (info: PartitionHub.ConsumerInfo, _: String) => {
       i += 1
       info.consumerIdByIdx((i % info.size).toInt)
     }

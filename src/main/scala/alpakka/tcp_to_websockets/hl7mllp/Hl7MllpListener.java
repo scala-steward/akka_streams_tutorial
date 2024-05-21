@@ -24,12 +24,12 @@ public class Hl7MllpListener {
 
     private static final int PORT_NUMBER = 6160;
 
-    private static HapiContext context = new DefaultHapiContext();
+    private static final HapiContext context = new DefaultHapiContext();
 
     public static void main(String[] args) {
 
         try {
-            boolean useSecureConnection = false; // are you using TLS/SSL?
+            boolean useSecureConnection = false;
 
             // The ValidationContext is used during parsing and well as during
             // validation using {@link ca.uhn.hl7v2.validation.Validator} objects.

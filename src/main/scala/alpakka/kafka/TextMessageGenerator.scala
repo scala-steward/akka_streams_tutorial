@@ -1,7 +1,6 @@
 package alpakka.kafka
 
 import java.util.concurrent.ThreadLocalRandom
-
 import scala.collection.mutable.ListBuffer
 
 /**
@@ -14,16 +13,16 @@ import scala.collection.mutable.ListBuffer
   */
 object TextMessageGenerator {
   val alphabetSet: Set[Char] = ('a' to 'z').toSet
-  val alphabets = alphabetSet.toList
+  val alphabets: Seq[Char] = alphabetSet.toList
   val vowelSet: Set[Char] = Set('a', 'e', 'i', 'o', 'u')
-  val vowels = vowelSet.toList
+  val vowels: Seq[Char] = vowelSet.toList
   val consonantSet: Set[Char] = alphabetSet -- vowelSet
-  val consonants = consonantSet.toList
+  val consonants: Seq[Char] = consonantSet.toList
 
   // Subset of Punct character class """!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~"""
   val puncts: String = """.,;?!"""
 
-  def random = ThreadLocalRandom.current
+  def random: ThreadLocalRandom = ThreadLocalRandom.current
 
   def randomChar: Char = alphabets(random.nextInt(0, alphabets.length))
 
@@ -41,7 +40,7 @@ object TextMessageGenerator {
 
   // Generate a word within a range of lengths
   def genRandWord(minLen: Int, maxLen: Int): String = {
-    var word = new ListBuffer[Char]()
+    val word = new ListBuffer[Char]()
 
     val wordLen: Int = random.nextInt(minLen, maxLen + 1)
 
@@ -59,7 +58,7 @@ object TextMessageGenerator {
                  ): String = {
 
     val randomLevel: Double = 0.05
-    var text = new ListBuffer[String]()
+    val text = new ListBuffer[String]()
 
     val numWordsInText: Int = random.nextInt(minWordsInText, maxWordsInText + 1)
 

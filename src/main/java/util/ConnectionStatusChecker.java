@@ -121,7 +121,7 @@ public class ConnectionStatusChecker {
         try {
             HttpClient httpClient = HttpClients.custom().setSSLContext(sslContext).build();
             httpClient.execute(new HttpOptions(endpointURL));
-            LOGGER.info("...successfully connected via HTTP OPTONS request to: {}", endpointURL);
+            LOGGER.info("...successfully connected via HTTP OPTIONS request to: {}", endpointURL);
             return true;
         } catch (Exception e) {
             LOGGER.warn("...unable to connect to: {}. Reason: ", endpointURL, e);

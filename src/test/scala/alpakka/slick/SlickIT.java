@@ -3,7 +3,7 @@ package alpakka.slick;
 import eu.rekawek.toxiproxy.Proxy;
 import eu.rekawek.toxiproxy.ToxiproxyClient;
 import eu.rekawek.toxiproxy.model.ToxicDirection;
-import org.junit.Rule;
+import org.junit.ClassRule;
 import org.junit.jupiter.api.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +35,7 @@ public class SlickIT {
     private static SlickRunner SLICK_RUNNER;
     private static String URL_WITH_MAPPED_PORT;
 
-    @Rule
+    @ClassRule
     public static Network network = Network.newNetwork();
 
     @Container

@@ -1,15 +1,15 @@
 package alpakka.env
 
-import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.actor.{ActorSystem, Terminated}
 import org.apache.pekko.http.scaladsl.Http
-import org.apache.pekko.http.scaladsl.model.ws._
-import org.apache.pekko.http.scaladsl.server.Directives._
+import org.apache.pekko.http.scaladsl.model.ws.*
+import org.apache.pekko.http.scaladsl.server.Directives.*
 import org.apache.pekko.http.scaladsl.server.Route
 import org.apache.pekko.http.scaladsl.server.directives.WebSocketDirectives
 import org.apache.pekko.stream.scaladsl.{Flow, Sink, Source}
 import org.slf4j.{Logger, LoggerFactory}
 
-import scala.concurrent.duration._
+import scala.concurrent.duration.*
 import scala.concurrent.{Await, Future}
 import scala.language.postfixOps
 import scala.util.{Failure, Success}
@@ -27,11 +27,11 @@ class WebsocketServer extends WebSocketDirectives {
   val (address, port) = ("127.0.0.1", 6002)
   var serverBinding: Future[Http.ServerBinding] = _
 
-  def run() = {
+  def run(): Unit = {
     server(address, port)
   }
 
-  def stop() = {
+  def stop(): Future[Terminated] = {
     logger.info("About to shutdown...")
     val fut = serverBinding.map(serverBinding => serverBinding.terminate(hardDeadline = 3.seconds))
     logger.info("Waiting for connections to terminate...")
@@ -41,7 +41,7 @@ class WebsocketServer extends WebSocketDirectives {
     }
   }
 
-  private def server(address: String, port: Int) = {
+  private def server(address: String, port: Int): Unit = {
 
     def echoFlow: Flow[Message, Message, Any] =
       Flow[Message].mapConcat {

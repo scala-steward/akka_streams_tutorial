@@ -7,7 +7,7 @@ import scala.concurrent.ExecutionContextExecutor
 
 
 object WebsocketConnectionStatusActor {
-  def props(id: String, endpoint: String) =
+  def props(id: String, endpoint: String): Props =
     Props(new WebsocketConnectionStatusActor(id, endpoint))
 
   final case object Connected
