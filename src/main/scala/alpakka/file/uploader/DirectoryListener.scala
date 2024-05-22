@@ -33,6 +33,12 @@ class DirectoryListener(uploadDir: Path, processedDir: Path) {
 
   val uploader: Uploader = Uploader(system)
 
+  if (!Files.exists(uploadDir)) {
+    val errorMessage = s"Invalid upload directory path: $uploadDir"
+    logger.error(errorMessage)
+    throw new IllegalArgumentException(errorMessage)
+  }
+
   val uploadSourceQueue: SourceQueueWithComplete[Path] = Source
     .queue[Path](bufferSize = 1000, OverflowStrategy.backpressure, maxConcurrentOffers = 1000)
     .mapAsync(1)(path => uploadAndMove(path))
