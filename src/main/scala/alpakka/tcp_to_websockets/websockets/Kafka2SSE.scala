@@ -17,7 +17,6 @@ import org.apache.pekko.stream.scaladsl.{Keep, RestartSource, Sink, Source}
 import org.slf4j.{Logger, LoggerFactory}
 
 import java.util.Locale
-import scala.concurrent.Future
 import scala.concurrent.duration.*
 import scala.language.postfixOps
 import scala.util.{Failure, Success}
@@ -47,10 +46,10 @@ class Kafka2SSE(mappedPortKafka: Int = 9092) {
     clientKillSwitch = backoffClient(address, port)
   }
 
-  def stop(): Future[Http.HttpTerminated] = {
+  def stop(): Unit = {
     logger.info("Stopping...")
     clientKillSwitch.shutdown()
-    serverBinding.terminate(10.seconds)
+    if (serverBinding != null) serverBinding.terminate(10.seconds) else {}
   }
 
   private def createConsumerSettings(group: String): ConsumerSettings[String, String] = {
@@ -91,10 +90,10 @@ class Kafka2SSE(mappedPortKafka: Int = 9092) {
     val bindingFuture = Http().newServerAt(address, port).bindFlow(route)
     bindingFuture.onComplete {
       case Success(binding) =>
-        logger.info("Server started, listening on: " + binding.localAddress)
+        logger.info(s"Server started, listening on: {}", binding.localAddress)
         serverBinding = binding
       case Failure(e) =>
-        logger.info(s"Server could not bind to $address:$port. Exception message: ${e.getMessage}")
+        logger.info(s"Server could not bind to: $address:$port. Exception message: ${e.getMessage}")
         system.terminate()
     }
   }
