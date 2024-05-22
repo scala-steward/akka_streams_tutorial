@@ -17,7 +17,7 @@ import scala.concurrent.Future
   * From uploadSourceQueue do a HTTP file upload via [[Uploader]]
   * Finally move the file to `rootDir/processed`
   *
-  * Run with test class: [[DirectoryListenerSpec]]
+  * Run with test class: [[DirectoryWatcherSpec]]
   *
   * Remarks:
   *  - [[FileAlterationListenerAdaptor]] allows to recursively listen to file changes at runtime
@@ -25,7 +25,7 @@ import scala.concurrent.Future
   *    https://discuss.lightbend.com/t/using-directorychangessource-recursively/7630
   *  - Alternative Impl: https://github.com/gmethvin/directory-watcher
   */
-class DirectoryListener(uploadDir: Path, processedDir: Path) {
+class DirectoryWatcher(uploadDir: Path, processedDir: Path) {
   val logger: Logger = LoggerFactory.getLogger(this.getClass)
   implicit val system: ActorSystem = ActorSystem()
 
@@ -120,11 +120,11 @@ class DirectoryListener(uploadDir: Path, processedDir: Path) {
   }
 
   def stop(): Future[Terminated] = {
-    logger.info("About to shutdown DirectoryListener...")
+    logger.info("About to shutdown DirectoryWatcher...")
     uploader.stop()
   }
 }
 
-object DirectoryListener extends App {
-  def apply(uploadDir: Path, processedDir: Path) = new DirectoryListener(uploadDir, processedDir)
+object DirectoryWatcher extends App {
+  def apply(uploadDir: Path, processedDir: Path) = new DirectoryWatcher(uploadDir, processedDir)
 }

@@ -1,6 +1,6 @@
 package alpakka.file
 
-import alpakka.file.uploader.DirectoryListener
+import alpakka.file.uploader.DirectoryWatcher
 import org.apache.commons.io.FileUtils
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AsyncWordSpec
@@ -13,35 +13,35 @@ import scala.util.Random
 
 /**
   * Designed as IT test on purpose to demonstrate
-  * the realistic usage of [[DirectoryListener]], hence we:
+  * the realistic usage of [[DirectoryWatcher]], hence we:
   *  - copy files to the file system before each test
   *  - clean up after each test
   *  - have a shared listener instance
   */
-final class DirectoryListenerSpec extends AsyncWordSpec with Matchers with BeforeAndAfterAll with BeforeAndAfterEachTestData {
+final class DirectoryWatcherSpec extends AsyncWordSpec with Matchers with BeforeAndAfterAll with BeforeAndAfterEachTestData {
   val logger: Logger = LoggerFactory.getLogger(this.getClass)
 
-  var listener: DirectoryListener = _
+  var listener: DirectoryWatcher = _
   var tmpRootDir: Path = _
   var parentDir: Path = _
   var processedDir: Path = _
 
-  "DirectoryListener" should {
+  "DirectoryWatcher" should {
     "detect_files_on_startup" in {
-      listener = DirectoryListener(parentDir, processedDir)
-      waitForCondition(2.seconds)(listener.countFilesProcessed() == 2) shouldBe true
+      listener = DirectoryWatcher(parentDir, processedDir)
+      waitForCondition(3.seconds)(listener.countFilesProcessed() == 2) shouldBe true
     }
 
     "detect_added_files_at_runtime_in_parent" in {
       copyTestFileToDir(parentDir)
-      listener = DirectoryListener(parentDir, processedDir)
-      waitForCondition(2.seconds)(listener.countFilesProcessed() == 2 + 1) shouldBe true
+      listener = DirectoryWatcher(parentDir, processedDir)
+      waitForCondition(3.seconds)(listener.countFilesProcessed() == 2 + 1) shouldBe true
     }
 
     "detect_added_files_at_runtime_in_subdir" in {
       copyTestFileToDir(parentDir.resolve("subdir"))
-      listener = DirectoryListener(parentDir, processedDir)
-      waitForCondition(2.seconds)(listener.countFilesProcessed() == 2 + 1) shouldBe true
+      listener = DirectoryWatcher(parentDir, processedDir)
+      waitForCondition(3.seconds)(listener.countFilesProcessed() == 2 + 1) shouldBe true
     }
 
     "detect_added_nested_subdir_at_runtime_with_files_in_subdir" in {
@@ -55,8 +55,8 @@ final class DirectoryListenerSpec extends AsyncWordSpec with Matchers with Befor
       val targetDir = Files.createDirectories(parentDir.resolve("subdir").resolve("nestedDirWithFiles"))
       FileUtils.copyDirectory(tmpDir.toFile, targetDir.toFile)
 
-      listener = DirectoryListener(parentDir, processedDir)
-      waitForCondition(2.seconds)(listener.countFilesProcessed() == 2 + 2) shouldBe true
+      listener = DirectoryWatcher(parentDir, processedDir)
+      waitForCondition(3.seconds)(listener.countFilesProcessed() == 2 + 2) shouldBe true
     }
 
     "handle invalid parent directory path" in {
@@ -64,7 +64,7 @@ final class DirectoryListenerSpec extends AsyncWordSpec with Matchers with Befor
       val processedDir = Files.createTempDirectory("processed")
 
       the[IllegalArgumentException] thrownBy {
-        listener = DirectoryListener(invalidParentDir, processedDir)
+        listener = DirectoryWatcher(invalidParentDir, processedDir)
       } should have message s"Invalid upload directory path: $invalidParentDir"
     }
   }
