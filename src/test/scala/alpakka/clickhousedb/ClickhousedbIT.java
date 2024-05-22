@@ -171,21 +171,15 @@ public class ClickhousedbIT {
     }
 
     protected void createTable() throws SQLException {
-        // Since we want to be Java 11 source compatible
         // Doc: https://clickhouse.com/docs/en/engines/table-engines
-        String newLine = System.lineSeparator();
-        String createStatementTextBlock =
-                "CREATE TABLE test.my_table"
-                        + newLine
-                        + "("
-                        + newLine
-                        + "`myfloat_nullable` Nullable(Float32),"
-                        + newLine
-                        + "`mystr` String,"
-                        + newLine
-                        + "`myint_id` Int32"
-                        + newLine
-                        + ") ENGINE = Log";
+        String createStatementTextBlock = """
+                CREATE TABLE test.my_table
+                (
+                `myfloat_nullable` Nullable(Float32),
+                `mystr` String,
+                `myint_id` Int32
+                ) ENGINE = Log
+                """;
 
         LOGGER.info(createStatementTextBlock);
 

@@ -7,13 +7,14 @@ import com.influxdb.query.FluxTable
 import com.influxdb.query.dsl.Flux
 import com.influxdb.query.dsl.functions.restriction.Restrictions
 import org.apache.pekko.actor.ActorSystem
-import org.apache.pekko.stream.Supervision
+import org.apache.pekko.stream.scaladsl.Sink
+import org.apache.pekko.stream.{ActorAttributes, Supervision}
 import org.slf4j.{Logger, LoggerFactory}
 
 import java.time.temporal.ChronoUnit
 import java.util
-import scala.concurrent.ExecutionContextExecutor
 import scala.concurrent.duration.DurationInt
+import scala.concurrent.{Await, ExecutionContextExecutor}
 import scala.util.control.NonFatal
 
 /**
@@ -54,25 +55,23 @@ class InfluxdbReader(baseURL: String, token: String, org: String = "testorg", bu
          |> range(start: -interval)
       """
 
-  // TODO Activate, when "com.influxdb" %% "influxdb-client-scala" is available for pekko
-  //    def source() = influxdbClientScala
-  //      .getQueryScalaApi()
-  //      .query(query)
+  def source() = influxdbClientScala
+    .getQueryScalaApi()
+    .query(query)
 
-  // TODO Activate, when "com.influxdb" %% "influxdb-client-scala" is available for pekko
   def getQuerySync(mem: String) = {
-    //      logger.info(s"Query raw for measurements of type: $mem")
-    //      val result = source()
-    //        .filter(fluxRecord => fluxRecord.getMeasurement().equals(mem) )
-    //        .wireTap(fluxRecord => {
-    //          val measurement = fluxRecord.getMeasurement()
-    //          val value = fluxRecord.getValue()
-    //          logger.debug(s"About to process measurement: $measurement with value: $value")
-    //        })
-    //        .withAttributes(ActorAttributes.supervisionStrategy(deciderFlow))
-    //        .runWith(Sink.seq)
-    //
-    //      Await.result(result, 10.seconds)
+    logger.info(s"Query raw for measurements of type: $mem")
+    val result = source()
+      .filter(fluxRecord => fluxRecord.getMeasurement().equals(mem))
+      .wireTap(fluxRecord => {
+        val measurement = fluxRecord.getMeasurement()
+        val value = fluxRecord.getValue()
+        logger.debug(s"About to process measurement: $measurement with value: $value")
+      })
+      .withAttributes(ActorAttributes.supervisionStrategy(deciderFlow))
+      .runWith(Sink.seq)
+
+    Await.result(result, 10.seconds)
   }
 
   def fluxQueryCount(mem: String): Long = {

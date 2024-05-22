@@ -11,7 +11,7 @@ import org.apache.pekko.http.scaladsl.server.Directives.*
 import org.apache.pekko.http.scaladsl.server.Route
 import org.apache.pekko.http.scaladsl.settings.ServerSettings
 import org.apache.pekko.http.scaladsl.{Http, HttpExt}
-import org.apache.pekko.pattern.CircuitBreaker
+import org.apache.pekko.pattern.{CircuitBreaker, CircuitBreakerOpenException}
 import org.apache.pekko.stream.ThrottleMode
 import org.apache.pekko.stream.scaladsl.{Sink, Source}
 import org.slf4j.{Logger, LoggerFactory}
@@ -168,7 +168,7 @@ object ReverseProxy extends App {
             val proxyReq = request.withUri(uri(target)).withHeaders(headers(target))
             circuitBreaker.withCircuitBreaker(http.singleRequest(proxyReq))
           }.recover {
-            case _: akka.pattern.CircuitBreakerOpenException => BadGateway(id, "Circuit breaker opened")
+            case _: CircuitBreakerOpenException => BadGateway(id, "Circuit breaker opened")
             case _: TimeoutException => GatewayTimeout(id)
             case e => BadGateway(id, e.getMessage)
           }

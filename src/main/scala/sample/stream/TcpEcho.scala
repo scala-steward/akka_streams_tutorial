@@ -14,34 +14,31 @@ import scala.sys.process.*
 import scala.util.{Failure, Success}
 
 /**
-  * Inspired by:
-  * https://doc.akka.io/docs/akka/current/stream/stream-io.html?language=scala
-  *
-  * Use without parameters to start server and 100 parallel clients.
+  * TCP echo client server round trip
+  * Use without parameters to start server and 100 parallel clients
   *
   * Use parameters `server 127.0.0.1 6000` to start server listening on port 6000
   *
-  * Use parameters `client 127.0.0.1 6000` to start one client connecting to
-  * server on 127.0.0.1:6000
+  * Use parameters `client 127.0.0.1 6000` to start one client
   *
   * Run cmd line client:
   * echo -n "Hello World" | nc 127.0.0.1 6000
   *
+  * Doc:
+  * https://pekko.apache.org/docs/pekko/current/stream/stream-io.html?language=scala
   */
 object TcpEcho extends App {
   val logger: Logger = LoggerFactory.getLogger(this.getClass)
   val systemServer = ActorSystem("TcpEchoServer")
   val systemClient = ActorSystem("TcpEchoClient")
 
-  var serverBinding: Future[Tcp.ServerBinding] = _
-
   if (args.isEmpty) {
     val (host, port) = ("127.0.0.1", 6000)
-    serverBinding = server(systemServer, host, port)
+    server(systemServer, host, port)
 
+    // Issue: https://github.com/akka/akka/issues/29842
     checkResources()
-    // Issue:
-    // https://github.com/akka/akka/issues/29842
+
     val maxClients = 100
     (1 to maxClients).par.foreach(each => client(each, systemClient, host, port))
   } else {
@@ -49,7 +46,7 @@ object TcpEcho extends App {
       if (args.length == 3) (args(1), args(2).toInt)
       else ("127.0.0.1", 6000)
     if (args(0) == "server") {
-      serverBinding = server(systemServer, host, port)
+      server(systemServer, host, port)
     } else if (args(0) == "client") {
       client(1, systemClient, host, port)
     }
@@ -105,12 +102,14 @@ object TcpEcho extends App {
 
     // We want "halfClose behavior" on the client side. Doc:
     // https://github.com/akka/akka/issues/22163
-    val connection: Flow[ByteString, ByteString, Future[Tcp.OutgoingConnection]] = Tcp().outgoingConnection(remoteAddress = InetSocketAddress.createUnresolved(host, port), halfClose = true)
+    val connection: Flow[ByteString, ByteString, Future[Tcp.OutgoingConnection]] =
+      Tcp().outgoingConnection(remoteAddress = InetSocketAddress.createUnresolved(host, port), halfClose = true)
     val testInput = ('a' to 'z').map(ByteString(_)) ++ Seq(ByteString("BYE"))
+    logger.info(s"Client: $id sending: ${testInput.length} bytes")
 
     val restartSettings = RestartSettings(1.second, 10.seconds, 0.2).withMaxRestarts(10, 1.minute)
     val restartSource = RestartSource.onFailuresWithBackoff(restartSettings) { () => Source(testInput).via(connection) }
-    val closed = restartSource.runForeach(each => logger.info(s"Client: $id received echo: ${each.utf8String}"))
+    val closed = restartSource.runForeach(each => logger.info(s"Client: $id received: ${each.utf8String}"))
     closed.onComplete(each => logger.info(s"Client: $id closed: $each"))
   }
 

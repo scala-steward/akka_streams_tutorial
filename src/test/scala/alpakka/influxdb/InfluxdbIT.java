@@ -74,8 +74,7 @@ public class InfluxdbIT {
                 .collect(Collectors.toList());
         assertThat(CompletableFuture.allOf(futList.toArray(new CompletableFuture[futList.size()]))).succeedsWithin(5 * maxClients, TimeUnit.SECONDS);
 
-        // TODO Activate, when "com.influxdb" %% "influxdb-client-scala" is available for pekko
-        //assertThat(influxDBReader.getQuerySync("testMem").length()).isEqualTo(nPoints * maxClients);
+        assertThat(influxDBReader.getQuerySync("testMem").length()).isEqualTo(nPoints * maxClients);
         assertThat(influxDBReader.fluxQueryCount("testMem")).isEqualTo(nPoints * maxClients);
         assertThat(new LogFileScanner("logs/application.log").run(1, 2, searchAfterPattern, "ERROR").length()).isZero();
     }

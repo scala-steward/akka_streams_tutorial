@@ -17,7 +17,7 @@ val artemisVersion = "2.33.0"
 val testContainersVersion = "1.19.8"
 val keycloakVersion = "24.0.4"
 val sttpVersion = "3.9.0"
-val influxdbVersion = "6.10.0"
+val influxdbVersion = "7.1.0"
 val awsClientVersion = "2.25.32"
 
 libraryDependencies ++= Seq(
@@ -86,8 +86,6 @@ libraryDependencies ++= Seq(
   "software.amazon.awssdk" % "sqs" % awsClientVersion,
 
 
-  // Migrated to pekko, but new client 7.0.0 only supports Java 17  (not Java 11)
-  // https://github.com/influxdata/influxdb-client-java/blob/master/CHANGELOG.md
   "com.influxdb" %% "influxdb-client-scala" % influxdbVersion,
   "com.influxdb" % "flux-dsl" % influxdbVersion,
   "org.influxdb" % "influxdb-java" % "2.23",

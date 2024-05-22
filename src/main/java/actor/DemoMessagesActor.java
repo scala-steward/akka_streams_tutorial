@@ -1,8 +1,9 @@
 package actor;
 
-import akka.Done;
-import akka.actor.*;
-import akka.pattern.Patterns;
+
+import org.apache.pekko.Done;
+import org.apache.pekko.actor.*;
+import org.apache.pekko.pattern.Patterns;
 
 import java.time.Duration;
 import java.util.concurrent.CompletionStage;
