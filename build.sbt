@@ -164,6 +164,8 @@ scalacOptions += "-Xsource:3"
 
 run / fork := true
 
+Test / parallelExecution := false
+
 // Needed as long as this lib is in the dependencies
 // https://eed3si9n.com/sbt-1.5.0
 // https://www.scala-lang.org/blog/2021/02/16/preventing-version-conflicts-with-versionscheme.html
