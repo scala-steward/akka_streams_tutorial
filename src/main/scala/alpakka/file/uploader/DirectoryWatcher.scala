@@ -39,7 +39,7 @@ class DirectoryWatcher(uploadDir: Path, processedDir: Path) {
     throw new IllegalArgumentException(errorMessage)
   }
 
-  val uploadSourceQueue: SourceQueueWithComplete[Path] = Source
+  private val uploadSourceQueue: SourceQueueWithComplete[Path] = Source
     .queue[Path](bufferSize = 1000, OverflowStrategy.backpressure, maxConcurrentOffers = 1000)
     .mapAsync(1)(path => uploadAndMove(path))
     .to(Sink.ignore)
@@ -89,7 +89,7 @@ class DirectoryWatcher(uploadDir: Path, processedDir: Path) {
     observer.addListener(listener)
     monitor.addObserver(observer)
     monitor.start()
-    uploadDirPath
+    monitor
   }
 
   private def addToUploadQueue(path: Path) = {
@@ -120,7 +120,7 @@ class DirectoryWatcher(uploadDir: Path, processedDir: Path) {
   }
 
   def stop(): Future[Terminated] = {
-    logger.info("About to shutdown DirectoryWatcher...")
+    logger.info("About to shutdown DirectoryWatcher/Uploader...")
     uploader.stop()
   }
 }

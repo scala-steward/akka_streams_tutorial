@@ -18,10 +18,9 @@ import scala.concurrent.{Await, ExecutionContextExecutor, Future}
 import scala.util.{Failure, Success}
 
 /**
-  * Upload file, eg from file system
+  * HTTP file upload to the embedded mock server
   * Is used by [[DirectoryWatcher]]
   *
-  * Also starts a mock server to handle the uploaded files
   */
 class Uploader(system: ActorSystem) {
   val logger: Logger = LoggerFactory.getLogger(this.getClass)
@@ -30,7 +29,7 @@ class Uploader(system: ActorSystem) {
 
   var serverBinding: Future[Http.ServerBinding] = _
 
-  val (protocol, address, port) = ("http", "localhost", 6000)
+  val (protocol, address, port) = ("http", "localhost", 6010)
 
   server(address, port)
 
@@ -43,7 +42,7 @@ class Uploader(system: ActorSystem) {
 
         storeUploadedFile("uploadedFile", tempDestination) {
           case (metadataFromClient: FileInfo, uploadedFile: File) =>
-            logger.info(s"Server stored uploaded tmp file with name: ${uploadedFile.getName} (Metadata from client: $metadataFromClient)")
+            logger.info(s"Mock server stored uploaded tmp file with name: ${uploadedFile.getName} (Metadata from client: $metadataFromClient)")
             complete(Future(uploadedFile.getName))
         }
       }
@@ -52,18 +51,18 @@ class Uploader(system: ActorSystem) {
     val bindingFuture = Http().newServerAt(address, port).bindFlow(routes)
     bindingFuture.onComplete {
       case Success(b) =>
-        logger.info("Server started, listening on: " + b.localAddress)
+        logger.info("Mock server started, listening on: {}", b.localAddress)
         serverBinding = bindingFuture
       case Failure(e) =>
-        logger.info(s"Server could not bind to $address:$port. Exception message: ${e.getMessage}")
+        logger.info(s"Mock server could not bind to: $address:$port. Exception message: ${e.getMessage}")
         system.terminate()
     }
 
     sys.addShutdownHook {
       logger.info("About to shutdown...")
-      val fut = bindingFuture.map(serverBinding => serverBinding.terminate(hardDeadline = 3.seconds))
+      val fut = bindingFuture.map(serverBinding => serverBinding.terminate(hardDeadline = 2.seconds))
       logger.info("Waiting for connections to terminate...")
-      val onceAllConnectionsTerminated = Await.result(fut, 10.seconds)
+      val onceAllConnectionsTerminated = Await.result(fut, 3.seconds)
       logger.info("Connections terminated")
       onceAllConnectionsTerminated.flatMap { _ => system.terminate()
       }
@@ -129,8 +128,7 @@ class Uploader(system: ActorSystem) {
     logger.info("Waiting for connections to terminate...")
     val onceAllConnectionsTerminated = Await.result(fut, 10.seconds)
     logger.info("Connections terminated")
-    onceAllConnectionsTerminated.flatMap { _ => system.terminate()
-    }
+    onceAllConnectionsTerminated.flatMap(_ => system.terminate())
   }
 
 }

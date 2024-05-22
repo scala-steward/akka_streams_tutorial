@@ -8,40 +8,42 @@ import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEachTestData, TestData}
 import org.slf4j.{Logger, LoggerFactory}
 
 import java.nio.file.{Files, Path, Paths}
+import scala.concurrent.Await
 import scala.concurrent.duration.*
 import scala.util.Random
 
 /**
   * Designed as IT test on purpose to demonstrate
   * the realistic usage of [[DirectoryWatcher]], hence we:
-  *  - copy files to the file system before each test
-  *  - clean up after each test
-  *  - have a shared listener instance
+  *  - create dir structure and copy files before each test
+  *  - clean up files after each test
+  *  - use a shared watcher instance
+  *  - waitForCondition with Thread.sleep()
   */
 final class DirectoryWatcherSpec extends AsyncWordSpec with Matchers with BeforeAndAfterAll with BeforeAndAfterEachTestData {
   val logger: Logger = LoggerFactory.getLogger(this.getClass)
 
-  var listener: DirectoryWatcher = _
+  var watcher: DirectoryWatcher = _
   var tmpRootDir: Path = _
-  var parentDir: Path = _
+  var uploadDir: Path = _
   var processedDir: Path = _
 
   "DirectoryWatcher" should {
     "detect_files_on_startup" in {
-      listener = DirectoryWatcher(parentDir, processedDir)
-      waitForCondition(3.seconds)(listener.countFilesProcessed() == 2) shouldBe true
+      watcher = DirectoryWatcher(uploadDir, processedDir)
+      waitForCondition(3.seconds)(watcher.countFilesProcessed() == 2) shouldBe true
     }
 
     "detect_added_files_at_runtime_in_parent" in {
-      copyTestFileToDir(parentDir)
-      listener = DirectoryWatcher(parentDir, processedDir)
-      waitForCondition(3.seconds)(listener.countFilesProcessed() == 2 + 1) shouldBe true
+      copyTestFileToDir(uploadDir)
+      watcher = DirectoryWatcher(uploadDir, processedDir)
+      waitForCondition(3.seconds)(watcher.countFilesProcessed() == 2 + 1) shouldBe true
     }
 
     "detect_added_files_at_runtime_in_subdir" in {
-      copyTestFileToDir(parentDir.resolve("subdir"))
-      listener = DirectoryWatcher(parentDir, processedDir)
-      waitForCondition(3.seconds)(listener.countFilesProcessed() == 2 + 1) shouldBe true
+      copyTestFileToDir(uploadDir.resolve("subdir"))
+      watcher = DirectoryWatcher(uploadDir, processedDir)
+      waitForCondition(3.seconds)(watcher.countFilesProcessed() == 2 + 1) shouldBe true
     }
 
     "detect_added_nested_subdir_at_runtime_with_files_in_subdir" in {
@@ -52,11 +54,11 @@ final class DirectoryWatcherSpec extends AsyncWordSpec with Matchers with Before
       Files.copy(sourcePath, targetPath)
       Files.copy(sourcePath, targetPath2)
 
-      val targetDir = Files.createDirectories(parentDir.resolve("subdir").resolve("nestedDirWithFiles"))
+      val targetDir = Files.createDirectories(uploadDir.resolve("subdir").resolve("nestedDirWithFiles"))
       FileUtils.copyDirectory(tmpDir.toFile, targetDir.toFile)
 
-      listener = DirectoryWatcher(parentDir, processedDir)
-      waitForCondition(3.seconds)(listener.countFilesProcessed() == 2 + 2) shouldBe true
+      watcher = DirectoryWatcher(uploadDir, processedDir)
+      waitForCondition(3.seconds)(watcher.countFilesProcessed() == 2 + 2) shouldBe true
     }
 
     "handle invalid parent directory path" in {
@@ -64,7 +66,7 @@ final class DirectoryWatcherSpec extends AsyncWordSpec with Matchers with Before
       val processedDir = Files.createTempDirectory("processed")
 
       the[IllegalArgumentException] thrownBy {
-        listener = DirectoryWatcher(invalidParentDir, processedDir)
+        watcher = DirectoryWatcher(invalidParentDir, processedDir)
       } should have message s"Invalid upload directory path: $invalidParentDir"
     }
   }
@@ -75,10 +77,10 @@ final class DirectoryWatcherSpec extends AsyncWordSpec with Matchers with Before
     tmpRootDir = Files.createTempDirectory(testData.text)
     logger.info(s"Created tmp dir: $tmpRootDir")
 
-    parentDir = tmpRootDir.resolve("upload")
+    uploadDir = tmpRootDir.resolve("upload")
     processedDir = tmpRootDir.resolve("processed")
-    Files.createDirectories(parentDir)
-    Files.createDirectories(parentDir.resolve("subdir"))
+    Files.createDirectories(uploadDir)
+    Files.createDirectories(uploadDir.resolve("subdir"))
     Files.createDirectories(processedDir)
 
     // Populate dirs BEFORE startup
@@ -88,7 +90,7 @@ final class DirectoryWatcherSpec extends AsyncWordSpec with Matchers with Before
 
   override protected def afterEach(testData: TestData): Unit = {
     logger.info(s"Cleaning up after test: ${testData.name}")
-    listener.stop()
+    Await.result(watcher.stop(), 5.seconds)
     FileUtils.deleteDirectory(tmpRootDir.toFile)
   }
 
@@ -104,14 +106,7 @@ final class DirectoryWatcherSpec extends AsyncWordSpec with Matchers with Before
   }
 
   private def waitForCondition(maxDuration: FiniteDuration)(condition: => Boolean): Boolean = {
-    val startTime = System.currentTimeMillis()
-    var elapsed = 0.millis
-
-    while (!condition && elapsed < maxDuration) {
-      Thread.sleep(100)
-      elapsed = (System.currentTimeMillis() - startTime).millis
-    }
-
+    Thread.sleep(maxDuration.toMillis)
     condition
   }
 }
