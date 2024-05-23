@@ -14,11 +14,11 @@ import scala.util.Random
 
 /**
   * Designed as IT test on purpose to demonstrate
-  * the realistic usage of [[DirectoryWatcher]], hence we:
-  *  - create dir structure and copy files before each test
-  *  - clean up files after each test
-  *  - use a shared watcher instance
-  *  - waitForCondition with Thread.sleep()
+  * the realistic usage of [[DirectoryWatcher]]
+  * Hence we:
+  *  - create the dir structure and copy files before each test
+  *  - clean up dir structure after each test
+  *  - use a shared watcher instance for all tests
   */
 final class DirectoryWatcherSpec extends AsyncWordSpec with Matchers with BeforeAndAfterAll with BeforeAndAfterEachTestData {
   val logger: Logger = LoggerFactory.getLogger(this.getClass)
@@ -75,7 +75,7 @@ final class DirectoryWatcherSpec extends AsyncWordSpec with Matchers with Before
     logger.info(s"Starting test: ${testData.name}")
 
     tmpRootDir = Files.createTempDirectory(testData.text)
-    logger.info(s"Created tmp dir: $tmpRootDir")
+    logger.info(s"Created tmp root dir: $tmpRootDir")
 
     uploadDir = tmpRootDir.resolve("upload")
     processedDir = tmpRootDir.resolve("processed")
@@ -90,8 +90,9 @@ final class DirectoryWatcherSpec extends AsyncWordSpec with Matchers with Before
 
   override protected def afterEach(testData: TestData): Unit = {
     logger.info(s"Cleaning up after test: ${testData.name}")
-    Await.result(watcher.stop(), 5.seconds)
+    if (watcher != null) Await.result(watcher.stop(), 5.seconds)
     FileUtils.deleteDirectory(tmpRootDir.toFile)
+    logger.info(s"Finished test: ${testData.name}")
   }
 
   private def copyTestFileToDir(target: Path) = {
@@ -106,7 +107,14 @@ final class DirectoryWatcherSpec extends AsyncWordSpec with Matchers with Before
   }
 
   private def waitForCondition(maxDuration: FiniteDuration)(condition: => Boolean): Boolean = {
-    Thread.sleep(maxDuration.toMillis)
+    val startTime = System.currentTimeMillis()
+    var elapsed = 0.millis
+
+    while (!condition && elapsed < maxDuration) {
+      Thread.sleep(100)
+      elapsed = (System.currentTimeMillis() - startTime).millis
+    }
+    logger.info("Condition reached after: {} ms", elapsed.toMillis)
     condition
   }
 }

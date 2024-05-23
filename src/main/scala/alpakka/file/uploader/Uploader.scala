@@ -124,9 +124,9 @@ class Uploader(system: ActorSystem) {
 
   def stop(): Future[Terminated] = {
     logger.info("About to shutdown Uploader...")
-    val fut = serverBinding.map(serverBinding => serverBinding.terminate(hardDeadline = 3.seconds))
+    val fut = serverBinding.map(serverBinding => serverBinding.terminate(hardDeadline = 2.seconds))
     logger.info("Waiting for connections to terminate...")
-    val onceAllConnectionsTerminated = Await.result(fut, 10.seconds)
+    val onceAllConnectionsTerminated = Await.result(fut, 3.seconds)
     logger.info("Connections terminated")
     onceAllConnectionsTerminated.flatMap(_ => system.terminate())
   }
