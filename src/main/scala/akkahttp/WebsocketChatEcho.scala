@@ -12,7 +12,7 @@ import scala.collection.parallel.CollectionConverters.*
 import scala.concurrent.Future
 import scala.concurrent.duration.*
 /**
-  * A simple WebSocket chat system using only akka streams with the help of MergeHub Source and BroadcastHub Sink
+  * A simple WebSocket chat system using only pekko streams with the help of MergeHub Source and BroadcastHub Sink
   * See also: [[WebsocketEcho]]
   *
   * Initial version shamelessly stolen from:

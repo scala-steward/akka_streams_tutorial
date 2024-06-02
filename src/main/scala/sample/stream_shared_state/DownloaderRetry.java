@@ -12,6 +12,7 @@ import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuil
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.io.HttpClientResponseHandler;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.util.TimeValue;
@@ -113,7 +114,7 @@ public class DownloaderRetry {
         @Override
         public boolean retryRequest(HttpResponse response, int execCount, HttpContext context) {
             int httpStatusCode = response.getCode();
-            if (httpStatusCode != 503)
+            if (httpStatusCode != HttpStatus.SC_SERVICE_UNAVAILABLE)
                 return false; // retry only on HTTP 503
 
             if (execCount >= maxRetriesCount) {

@@ -4,6 +4,7 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.hc.client5.http.HttpRequestRetryStrategy;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.util.TimeValue;
 import org.json.JSONObject;
@@ -67,7 +68,7 @@ class HttpRequestRetryStrategyOpenAI implements HttpRequestRetryStrategy {
     @Override
     public boolean retryRequest(HttpResponse response, int execCount, HttpContext context) {
         int httpStatusCode = response.getCode();
-        if (httpStatusCode == 500 || httpStatusCode == 503) {
+        if (httpStatusCode == HttpStatus.SC_INTERNAL_SERVER_ERROR || httpStatusCode == HttpStatus.SC_SERVICE_UNAVAILABLE) {
             if (execCount >= maxRetriesCount) {
                 LOGGER.warn("Request failed after: {} retries",
                         execCount);
