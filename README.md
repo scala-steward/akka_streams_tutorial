@@ -1,7 +1,12 @@
+[![Sourcegraph Cody chat](https://img.shields.io/badge/chat%20with-this%20repo-blue)](https://sourcegraph.com/github.com/pbernet/akka_streams_tutorial "Sourcegraph Cody")
 [![Build Status](https://github.com/pbernet/akka_streams_tutorial/actions/workflows/ci.yml/badge.svg)](https://github.com/pbernet/akka_streams_tutorial/actions/workflows/ci.yml)
-[![Scala Steward badge](https://img.shields.io/badge/Scala_Steward-helping-blue.svg?style=flat&logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAQCAMAAAARSr4IAAAAVFBMVEUAAACHjojlOy5NWlrKzcYRKjGFjIbp293YycuLa3pYY2LSqql4f3pCUFTgSjNodYRmcXUsPD/NTTbjRS+2jomhgnzNc223cGvZS0HaSD0XLjbaSjElhIr+AAAAAXRSTlMAQObYZgAAAHlJREFUCNdNyosOwyAIhWHAQS1Vt7a77/3fcxxdmv0xwmckutAR1nkm4ggbyEcg/wWmlGLDAA3oL50xi6fk5ffZ3E2E3QfZDCcCN2YtbEWZt+Drc6u6rlqv7Uk0LdKqqr5rk2UCRXOk0vmQKGfc94nOJyQjouF9H/wCc9gECEYfONoAAAAASUVORK5CYII=)](https://scala-steward.org)
+[![Scala Steward](https://img.shields.io/badge/Scala_Steward-helping-blue.svg?style=flat&logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAQCAMAAAARSr4IAAAAVFBMVEUAAACHjojlOy5NWlrKzcYRKjGFjIbp293YycuLa3pYY2LSqql4f3pCUFTgSjNodYRmcXUsPD/NTTbjRS+2jomhgnzNc223cGvZS0HaSD0XLjbaSjElhIr+AAAAAXRSTlMAQObYZgAAAHlJREFUCNdNyosOwyAIhWHAQS1Vt7a77/3fcxxdmv0xwmckutAR1nkm4ggbyEcg/wWmlGLDAA3oL50xi6fk5ffZ3E2E3QfZDCcCN2YtbEWZt+Drc6u6rlqv7Uk0LdKqqr5rk2UCRXOk0vmQKGfc94nOJyQjouF9H/wCc9gECEYfONoAAAAASUVORK5CYII=)](https://scala-steward.org)
 
 # Pekko tutorial #
+
+This repository contains a collection of runnable and self-contained examples from
+various [Pekko Streams](https://pekko.apache.org/docs/pekko/current/stream), [Pekko Connectors](https://pekko.apache.org/docs/pekko-connectors/current/)
+and [Pekko HTTP](https://pekko.apache.org/docs/pekko-http/current/) tutorials, blogs, and postings.
 
 > **Akka vs Pekko**  
 > As
@@ -11,18 +16,36 @@
 > alternative. A BIG Thank you to the committed Pekko committers.
 >
 > For now the branch <a href="https://github.com/pbernet/akka_streams_tutorial/tree/migrate_pekko">migrate_pekko</a>
-> contains a 1st basic migration (with a few losses). Currently this is the only maintained branch.
-> The plan is to move the content of this branch to a new `pekko_tutorial` repo.
+> contains the migration (with a few losses). Currently, this is the only maintained branch.
+> The plan is to move the content of this branch to a new `pekko_tutorial` repo and support Scala 3.
 
-"It's working!" a colleague used to shout across the office when yet another proof of concept was running it's first few
-hundred
-meters along the happy path, aware that the real work started right there.
-This repo contains a collection of runnable and self-contained examples from
-various [Pekko Streams](https://pekko.apache.org/docs/pekko/current/stream)
-and [Pekko Connectors](https://pekko.apache.org/docs/pekko-connectors/current/) tutorials, blogs and postings to provide
-you with
-exactly this feeling.
-See the class comment on how to run each example. These more complex examples are described below:
+## Project Description
+
+"It's working!" a colleague used to shout across the office when yet another proof of concept was running its first few
+hundred meters along the happy path, aware that the real work started right there. This repo aims to provide you with
+exactly this feeling by offering a collection of runnable examples.
+
+## Getting Started
+
+### Prerequisites
+
+Java 17 or higher (recommended: [GraalVM JDK 21](https://www.graalvm.org/downloads))
+
+### Installation
+
+1. Clone the repository: `git clone https://github.com/pbernet/akka_streams_tutorial.git`
+2. Navigate to the project directory: `cd akka_streams_tutorial`
+3. Compile the project: `sbt compile`
+
+### Running Examples
+
+Each example class contains instructions on how to run it from the IDE. Most examples are throttled, so you can see the
+console output and observe what is happening. Some examples deliberately throw `RuntimeException` to show recovery
+behavior.
+
+## Examples Overview
+
+Some larger examples:
 * [Element deduplication](#element-deduplication)
 * [Windturbine example](#windturbine-example)
 * [Apache Kafka WordCount](#apache-kafka-wordcount)
@@ -30,50 +53,53 @@ See the class comment on how to run each example. These more complex examples ar
 * [Analyse Wikipedia edits live stream](#analyse-wikipedia-edits-live-stream)
 * [Movie subtitle translation via OpenAI API](#movie-subtitle-translation-via-openai-api)
 
-Many of the examples deal with some kind of (shared) state. While most Pekko
-Streams [operators](https://nightlies.apache.org/pekko/docs/pekko/1.0.1/docs//stream/operators/index.html) are
+Many examples deal with shared state management. While most Pekko
+Streams [operators](https://pekko.apache.org/docs/pekko/current/stream/operators/index.html) are
 stateless, the samples in
-package [sample.stream_shared_state](src/main/scala/sample/stream_shared_state) also show some trickier stateful
+package [sample.stream_shared_state](src/main/scala/sample/stream_shared_state) show some trickier stateful
 operators in action.
 
-Other noteworthy examples:
-* The `*Echo` examples series implement round trips eg [HttpFileEcho](src/main/scala/akkahttp/HttpFileEcho.scala)
+The `*Echo` example series implement round trips eg [HttpFileEcho](src/main/scala/akkahttp/HttpFileEcho.scala)
   and [WebsocketEcho](src/main/scala/akkahttp/WebsocketEcho.scala)
-* The branch `grpc` contains the
-  basic [gRPC examples](https://github.com/pbernet/akka_streams_tutorial/tree/grpc/src/main/scala/akka/grpc/echo) and
-  a [chunked file upload](https://github.com/pbernet/akka_streams_tutorial/tree/grpc/src/main/scala/akka/grpc/fileupload/FileServiceImpl.scala)
-  . Use `sbt compile` or `Rebuild Project` in IDEA to re-generate the sources via the `sbt-Pekko-grpc` plugin.
 
-Remarks:
+Using [testcontainers](https://www.testcontainers.org) allows running realistic scenarios with just one click:
 
-* Java 17 language level is kept, hence run with a late JDK 17 or higher. To speed things
-  up [graalvm-jdk-21](https://www.graalvm.org/downloads) works best.
-* Most examples are throttled, so you can see from the console output what is happening
-* Some examples deliberately throw `RuntimeException`, so you can observe recovery behaviour
-* Using [testcontainers](https://www.testcontainers.org) allows running realistic scenarios (
-  eg [SSEtoElasticsearch](src/main/scala/alpakka/sse_to_elasticsearch/SSEtoElasticsearch.scala)
-  , [KafkaServerTestcontainers](src/main/scala/alpakka/env/KafkaServerTestcontainers.scala)
-  , [SlickIT](src/test/scala/alpakka/slick/SlickIT.java))
+* [OIDCKeycloak](src/main/scala/akkahttp/oidc/OIDCKeycloak.scala)
+* [SSEtoElasticsearch](src/main/scala/alpakka/sse_to_elasticsearch/SSEtoElasticsearch.scala)
+* [ClickhousedbIT](src/test/scala/alpakka/clickhousedb/ClickhousedbIT.java)
+* [InfluxdbIT](src/test/scala/alpakka/influxdb/InfluxdbIT.java)
+* [SlickIT](src/test/scala/alpakka/slick/SlickIT.java)
 
-Other resources:
+Examples of integrating AWS services with Pekko Connectors:
 
-* Maintained examples are
-  in [pekko-stream-tests](https://github.com/apache/incubator-pekko/tree/main/stream-tests/src/test/scala/org/apache/pekko/stream/scaladsl)
-  , the [Streams Cookbook](https://nightlies.apache.org/pekko/docs/pekko/1.0.1/docs//stream/stream-cookbook.html)
+* [KinesisEcho](src/main/scala/alpakka/kinesis/KinesisEcho.scala)
+* [FirehoseEcho](src/main/scala/alpakka/kinesis/FirehoseEcho.scala)
+* [DynamoDBEcho](src/main/scala/alpakka/dynamodb/DynamoDBEcho.scala)
+* [SqsEcho](src/main/scala/alpakka/sqs/SqsEcho.scala)
+* [S3Echo](src/main/scala/alpakka/s3/S3Echo.scala)
+
+Run them via the corresponding IT test classes locally in localstack/minio or against your AWS account.
+
+### Other example resources
+
+* Maintained pekko-streams examples are
+  in [pekko-stream-tests](https://github.com/apache/pekko/tree/main/stream-tests/src/test/scala/org/apache/pekko/stream/scaladsl)
+  and the [Streams Cookbook](https://pekko.apache.org/docs/pekko/current/stream/stream-cookbook.html)
 * Getting started
-  guides: [Streams Quickstart Guide](https://nightlies.apache.org/pekko/docs/pekko/1.0.1/docs////stream/stream-quickstart.html)
+  guides: [Streams Quickstart Guide](https://pekko.apache.org/docs/pekko/current/stream/stream-quickstart.html#streams-quickstart-guide)
   and
   this
   popular [stackoverflow article](https://stackoverflow.com/questions/35120082/how-to-get-started-with-akka-streams)
 * The doc
-  chapters [Modularity, Composition and Hierarchy](https://nightlies.apache.org/pekko/docs/pekko/1.0.1/docs////////stream/stream-composition.html)
-  and [Design Principles behind Apache Pekko Streams](https://nightlies.apache.org/pekko/docs/pekko/1.0.1/docs///////general/stream/stream-design.html)
+  chapters [Modularity, Composition and Hierarchy](https://pekko.apache.org/docs/pekko/current/stream/stream-composition.html)
+  and [Design Principles behind Apache Pekko Streams](https://pekko.apache.org/docs/pekko/current/general/stream/stream-design.html)
   provide useful background
 * The concept
-  of [running streams using materialized values](https://nightlies.apache.org/pekko/docs/pekko/1.0.1/docs/////////stream/stream-flows-and-basics.html#defining-and-running-streams)
+  of [running streams using materialized values](https://pekko.apache.org/docs/pekko/current/stream/stream-flows-and-basics.html#defining-and-running-streams)
   is also explained in this [blog](http://nivox.github.io/posts/akka-stream-materialized-values),
   this [video](https://www.youtube.com/watch?v=2-CK76cPB9s) and in
   this [stackoverflow article](https://stackoverflow.com/questions/37911174/via-viamat-to-tomat-in-akka-stream)
+* Maintained [Pekko Connectors examples](https://github.com/apache/pekko-connectors-samples)
 
 ## Element deduplication ##
 
@@ -166,7 +192,7 @@ source `.srt` file to a target language using the OpenAI API endpoints:
 * `/completions`      (gpt-3.5-turbo-instruct) used as fallback,
   see [Doc](https://beta.openai.com/docs/api-reference/completions/create)
 
-Pekko streams helps in these areas:
+Pekko streams helps with:
 * Workflow modelling
 * Scene splitting to `session windows`. All blocks of a scene are grouped in one session and then translated in one API call
 * Throttling to not exceed the [OpenAI API rate limits](https://platform.openai.com/docs/guides/rate-limits?context=tier-free)
