@@ -176,7 +176,7 @@ The class [SSEtoElasticsearch](src/main/scala/alpakka/sse_to_elasticsearch/SSEto
 workflow, using the `title` attribute as identifier from the SSE entity to fetch the `extract` from the Wikipedia API,
 eg
 for [Douglas Adams](https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&exlimit=max&explaintext&exintro&titles=Douglas_Adams).
-Text processing on this content using [opennlp](https://opennlp.apache.org/docs/1.9.3/manual/opennlp.html)
+Text processing on this content using [opennlp](https://opennlp.apache.org/docs/2.3.3/manual/opennlp.html)
 yields `personsFound`, which are added to the `wikipediaedits` Elasticsearch index.
 The index is queried periodically and the content may also be viewed with a Browser, eg
 
