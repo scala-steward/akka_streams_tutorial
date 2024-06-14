@@ -177,9 +177,6 @@ enablePlugins(GatlingPlugin)
 ThisBuild / libraryDependencySchemes += "org.scala-lang.modules" %% "scala-java8-compat" % "always"
 
 // For Scalafix basic stuff to work
-ThisBuild / scalafixScalaBinaryVersion :=
-  CrossVersion.binaryScalaVersion(scalaVersion.value)
-
 libraryDependencies +=
   "ch.epfl.scala" %% "scalafix-core" % _root_.scalafix.sbt.BuildInfo.scalafixVersion % ScalafixConfig
 
