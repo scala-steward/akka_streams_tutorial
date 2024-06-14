@@ -96,15 +96,13 @@ libraryDependencies ++= Seq(
   "ca.uhn.hapi" % "hapi-structures-v25" % "2.3",
   "ca.uhn.hapi" % "hapi-structures-v281" % "2.3",
 
-  "org.apache.opennlp" % "opennlp-tools" % "2.3.1",
+  "org.apache.opennlp" % "opennlp-tools" % "2.3.3",
 
   "org.apache.httpcomponents.client5" % "httpclient5" % "5.3.1",
   "org.apache.httpcomponents.core5" % "httpcore5" % "5.2.4",
   "commons-io" % "commons-io" % "2.16.1",
   "org.apache.commons" % "commons-lang3" % "3.12.0",
   "com.twitter" %% "bijection-avro" % "0.9.7",
-
-  //"io.apicurio" % "apicurio-registry-utils-serde" % "1.3.2.Final",
 
 
   "org.apache.camel" % "camel-core" % "3.20.2",
@@ -146,7 +144,12 @@ libraryDependencies ++= Seq(
 
   "org.scalatest" %% "scalatest" % "3.2.18" % Test,
   "org.apache.pekko" %% "pekko-testkit" % pekkoVersion % Test,
-  "org.assertj" % "assertj-core" % "3.25.3" % Test
+  "org.assertj" % "assertj-core" % "3.25.3" % Test,
+
+  // https://docs.gatling.io/reference/integrations/build-tools/sbt-plugin/
+  "io.gatling" % "gatling-core" % "3.11.3",
+  "io.gatling.highcharts" % "gatling-charts-highcharts" % "3.11.3",
+  "io.gatling" % "gatling-test-framework" % "3.11.3"
 )
 
 resolvers += "repository.jboss.org-public" at "https://repository.jboss.org/nexus/content/groups/public"
@@ -165,6 +168,8 @@ scalacOptions += "-Xsource:3"
 run / fork := true
 
 Test / parallelExecution := false
+
+enablePlugins(GatlingPlugin)
 
 // Needed as long as this lib is in the dependencies
 // https://eed3si9n.com/sbt-1.5.0

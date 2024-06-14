@@ -18,6 +18,7 @@ import scala.concurrent.Future
   * Finally move the file to `rootDir/processed`
   *
   * Run with test class: [[DirectoryWatcherSpec]]
+  * Run with gatling : [[DirectoryWatcherSimulation]]
   *
   * Remarks:
   *  - [[FileAlterationListenerAdaptor]] allows to recursively listen to file changes at runtime

@@ -24,12 +24,12 @@ import scala.concurrent.duration.DurationInt
 import scala.util.{Failure, Success}
 
 /**
-  * Inspired by:
+  * Conceptual PoC inspired by:
   * https://github.com/mathieuancelin/akka-http-reverse-proxy
   *
   * HTTP reverse proxy server echo PoC with:
   *  - Weighted round robin load balancing
-  *  - Retry on 5xx
+  *  - Retry on HTTP 5xx from target servers
   *  - CircuitBreaker per target server to avoid overload
   *  - HTTP Header `X-Correlation-ID` for tracing (only for Mode.local)
   *
@@ -39,6 +39,16 @@ import scala.util.{Failure, Success}
   * Mode.remote:
   * HTTP client(s) --> ReverseProxy --> remote target server(s)
   *
+  * Remarks:
+  *  - The target server selection works via the "Host" HTTP header
+  *  - Local/Remote target servers are designed to be flaky to show retry/circuit breaker behavior
+  *  - On top of the built in client, you may also try other clients
+  *  - This PoC may not scale well, possible bottlenecks are:
+  *     - Combination of Retry/CircuitBreaker
+  *     - Round robin impl. with `requestCounter` means shared state
+  *
+  * Gatling client: [[ReverseProxySimulation]]
+  *
   * curl client:
   * curl -H "Host: local" -H "X-Correlation-ID: 1-1" -o - -i -w " %{time_total}\n" http://127.0.0.1:8080/mypath
   * curl -H "Host: remote" -o - -i -w " %{time_total}\n" http://127.0.0.1:8080/200
@@ -46,10 +56,6 @@ import scala.util.{Failure, Success}
   * wrk perf client:
   * wrk -t2 -c10 -d10s -H "Host: local" --latency http://127.0.0.1:8080/mypath
   * wrk -t2 -c10 -d10s -H "Host: remote" --latency http://127.0.0.1:8080/200
-  *
-  * This conceptual PoC works but may not scale well, possible bottlenecks:
-  *  - Combination of Retry/CircuitBreaker
-  *  - Round robin impl. with `requestCounter` means shared state
   *
   * Doc:
   * https://pekko.apache.org/docs/pekko/current/common/circuitbreaker.html
