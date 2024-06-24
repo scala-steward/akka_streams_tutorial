@@ -148,7 +148,7 @@ libraryDependencies ++= Seq(
 
   // https://docs.gatling.io/reference/integrations/build-tools/sbt-plugin/
   "io.gatling" % "gatling-core" % "3.11.3",
-  "io.gatling.highcharts" % "gatling-charts-highcharts" % "3.11.3",
+  "io.gatling.highcharts" % "gatling-charts-highcharts" % "3.11.4",
   "io.gatling" % "gatling-test-framework" % "3.11.3"
 )
 
