@@ -147,9 +147,9 @@ libraryDependencies ++= Seq(
   "org.assertj" % "assertj-core" % "3.25.3" % Test,
 
   // https://docs.gatling.io/reference/integrations/build-tools/sbt-plugin/
-  "io.gatling" % "gatling-core" % "3.11.3",
+  "io.gatling" % "gatling-core" % "3.11.4",
   "io.gatling.highcharts" % "gatling-charts-highcharts" % "3.11.3",
-  "io.gatling" % "gatling-test-framework" % "3.11.3"
+  "io.gatling" % "gatling-test-framework" % "3.11.4"
 )
 
 resolvers += "repository.jboss.org-public" at "https://repository.jboss.org/nexus/content/groups/public"
