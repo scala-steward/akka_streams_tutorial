@@ -12,13 +12,15 @@ val pekkoConnectorVersion = "1.0.2"
 val pekkoConnectorKafkaVersion = "1.0.0"
 
 val kafkaVersion = "3.6.1"
-val activemqVersion = "5.18.4"
-val artemisVersion = "2.33.0"
+val activemqVersion = "5.18.4" // We are stuck with 5.x
+val artemisVersion = "2.35.0"
 val testContainersVersion = "1.19.8"
 val keycloakVersion = "24.0.4"
 val sttpVersion = "3.9.0"
 val influxdbVersion = "7.1.0"
 val awsClientVersion = "2.25.32"
+val gatlingVersion = "3.11.4"
+val circeVersion = "0.14.8"
 
 libraryDependencies ++= Seq(
   "org.scala-lang.modules" %% "scala-parallel-collections" % "1.0.4",
@@ -37,9 +39,9 @@ libraryDependencies ++= Seq(
   // JSON (un)marshalling in Java examples
   "org.json" % "json" % "20240303",
 
-  "io.circe" %% "circe-core" % "0.14.6",
-  "io.circe" %% "circe-generic" % "0.14.6",
-  "io.circe" %% "circe-parser" % "0.14.6",
+  "io.circe" %% "circe-core" % circeVersion,
+  "io.circe" %% "circe-generic" % circeVersion,
+  "io.circe" %% "circe-parser" % circeVersion,
 
   // sttp wraps around pekko-http to allow for concise clients
   "com.softwaremill.sttp.client3" %% "core" % sttpVersion,
@@ -123,8 +125,8 @@ libraryDependencies ++= Seq(
   "org.testcontainers" % "localstack" % testContainersVersion,
   "org.testcontainers" % "clickhouse" % testContainersVersion,
 
-  "com.clickhouse" % "clickhouse-jdbc" % "0.6.0",
-  "com.crobox.clickhouse" %% "client" % "1.1.4",
+  "com.clickhouse" % "clickhouse-jdbc" % "0.6.1",
+  "com.crobox.clickhouse" %% "client" % "1.2.2",
 
   "org.opensearch" % "opensearch-testcontainers" % "2.0.1",
   "com.github.dasniko" % "testcontainers-keycloak" % "3.3.1",
@@ -138,18 +140,18 @@ libraryDependencies ++= Seq(
   "org.keycloak" % "keycloak-admin-client" % keycloakVersion,
   "org.jboss.spec.javax.ws.rs" % "jboss-jaxrs-api_2.1_spec" % "2.0.2.Final",
 
-  "org.postgresql" % "postgresql" % "42.6.0",
-  "io.zonky.test.postgres" % "embedded-postgres-binaries-bom" % "15.4.0" % Test pomOnly(),
-  "io.zonky.test" % "embedded-postgres" % "2.0.4" % Test,
+  "org.postgresql" % "postgresql" % "42.7.3",
+  "io.zonky.test.postgres" % "embedded-postgres-binaries-bom" % "16.2.0" % Test pomOnly(),
+  "io.zonky.test" % "embedded-postgres" % "2.0.7" % Test,
 
   "org.scalatest" %% "scalatest" % "3.2.18" % Test,
   "org.apache.pekko" %% "pekko-testkit" % pekkoVersion % Test,
   "org.assertj" % "assertj-core" % "3.25.3" % Test,
 
   // https://docs.gatling.io/reference/integrations/build-tools/sbt-plugin/
-  "io.gatling" % "gatling-core" % "3.11.3",
-  "io.gatling.highcharts" % "gatling-charts-highcharts" % "3.11.3",
-  "io.gatling" % "gatling-test-framework" % "3.11.3"
+  "io.gatling" % "gatling-core" % gatlingVersion,
+  "io.gatling.highcharts" % "gatling-charts-highcharts" % gatlingVersion,
+  "io.gatling" % "gatling-test-framework" % gatlingVersion
 )
 
 resolvers += "repository.jboss.org-public" at "https://repository.jboss.org/nexus/content/groups/public"
