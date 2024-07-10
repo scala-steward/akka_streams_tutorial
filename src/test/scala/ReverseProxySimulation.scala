@@ -6,7 +6,7 @@ import scala.concurrent.duration.*
 
 /**
   * Start [[akkahttp.ReverseProxy]]
-  * Run this Simulation with:
+  * Run this simulation with the cmd:
   * sbt 'Gatling/testOnly ReverseProxySimulation'
   */
 class ReverseProxySimulation extends Simulation {
