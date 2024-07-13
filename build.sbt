@@ -35,7 +35,7 @@ libraryDependencies ++= Seq(
   // JSON (un)marshalling support for pekko-http
   "org.apache.pekko" %% "pekko-http-spray-json" % pekkoHTTPVersion,
   "org.apache.pekko" %% "pekko-http-xml" % pekkoHTTPVersion,
-  
+
   // JSON (un)marshalling in Java examples
   "org.json" % "json" % "20240303",
 
@@ -104,8 +104,7 @@ libraryDependencies ++= Seq(
   "org.apache.httpcomponents.core5" % "httpcore5" % "5.2.4",
   "commons-io" % "commons-io" % "2.16.1",
   "org.apache.commons" % "commons-lang3" % "3.12.0",
-  "com.twitter" %% "bijection-avro" % "0.9.7",
-
+  "com.sksamuel.avro4s" %% "avro4s-core" % "4.1.2",
 
   "org.apache.camel" % "camel-core" % "3.20.2",
   "org.apache.camel" % "camel-reactive-streams" % "3.20.2",
