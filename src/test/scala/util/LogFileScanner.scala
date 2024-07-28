@@ -21,7 +21,7 @@ class LogFileScanner(localLogFilePath: String = "logs/application.log") {
   def run(scanDelaySeconds: Int = 0, scanForSeconds: Int = 5, searchAfterPattern: String, pattern: String): List[String] = {
     val path: Path = fs.getPath(localLogFilePath)
     val pollingInterval = 250.millis
-    val maxLineSize: Int = 24 * 1024
+    val maxLineSize: Int = 100 * 1024
 
     // Wait for the components to produce log messages
     Thread.sleep(scanDelaySeconds * 1000)

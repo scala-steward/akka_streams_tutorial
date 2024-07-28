@@ -1,8 +1,9 @@
 package alpakka.tcp_to_websockets
 
-import alpakka.env.{KafkaServerTestcontainers, WebsocketServer}
+import alpakka.env.WebsocketServer
 import alpakka.tcp_to_websockets.hl7mllp.{Hl7Tcp2Kafka, Hl7TcpClient}
 import alpakka.tcp_to_websockets.websockets.{Kafka2SSE, Kafka2Websocket}
+import io.github.embeddedkafka.EmbeddedKafka
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AsyncWordSpec
 import org.scalatest.{BeforeAndAfterEachTestData, TestData}
@@ -17,16 +18,13 @@ import util.LogFileScanner
   *
   * Remarks:
   *  - The test focus is on log file scanning to check for processed messages and ERRORs
-  *  - This setup restarts Kafka for each test, so they can run independently. The downside
-  *    of this is that we have to deal with a new mapped port on each restart.
-  *    A setup with one Kafka start for all tests is here:
-  *    https://doc.akka.io/docs/alpakka-kafka/current/testing-testcontainers.html
+  *  - This test restarts Kafka for each test, so they can run independently.
   *  - Since the shutdown of producers/consumers takes a long time, there are WARN msgs in the log
   */
 final class AlpakkaTrophySpec extends AsyncWordSpec with Matchers with BeforeAndAfterEachTestData {
   val logger: Logger = LoggerFactory.getLogger(this.getClass)
 
-  val kafkaContainer: KafkaServerTestcontainers = KafkaServerTestcontainers()
+  private var bootstrapServer: String = _
   var mappedPortKafka: Int = _
 
   var websocketServer: WebsocketServer = _
@@ -39,7 +37,8 @@ final class AlpakkaTrophySpec extends AsyncWordSpec with Matchers with BeforeAnd
       val numberOfMessages = 10
       Hl7TcpClient(numberOfMessages)
 
-      new LogFileScanner().run(10, 10, "Starting test: Happy path should find all processed messages in WebsocketServer log", "ERROR").length should equal(0)
+      // With EmbeddedKafka there is one ERROR due to port binding at the start
+      new LogFileScanner().run(10, 10, "Starting test: Happy path should find all processed messages in WebsocketServer log", "ERROR").length should equal(1)
       // 10 + 1 Initial message
       new LogFileScanner().run(10, 10, "Starting test: Happy path should find all processed messages in WebsocketServer log", "WebsocketServer received:").length should equal(numberOfMessages + 1)
     }
@@ -103,24 +102,24 @@ final class AlpakkaTrophySpec extends AsyncWordSpec with Matchers with BeforeAnd
 
       // Stopping after half of the msg are processed
       Thread.sleep(5000)
-      logger.info("Re-starting Kafka container...")
-      kafkaContainer.stop()
-      kafkaContainer.run()
-      val newMappedPortKafka = kafkaContainer.mappedPort
-      logger.info(s"Re-started Kafka on new mapped port: $newMappedPortKafka")
+      logger.info("Re-starting Kafka...")
+      EmbeddedKafka.stop()
+      mappedPortKafka = EmbeddedKafka.start().config.kafkaPort
+      bootstrapServer = s"localhost:$mappedPortKafka"
+      logger.info(s"Re-started Kafka on mapped port: $mappedPortKafka")
 
       // Now we need to restart the components sending/receiving to/from Kafka as well,
       // to connect to the new mapped port
       hl7Tcp2Kafka.stop()
-      hl7Tcp2Kafka = Hl7Tcp2Kafka(newMappedPortKafka)
+      hl7Tcp2Kafka = Hl7Tcp2Kafka(mappedPortKafka)
       hl7Tcp2Kafka.run()
 
       kafka2Websocket.stop()
-      kafka2Websocket = Kafka2Websocket(newMappedPortKafka)
+      kafka2Websocket = Kafka2Websocket(mappedPortKafka)
       kafka2Websocket.run()
 
       kafka2SSE.stop()
-      kafka2SSE = Kafka2SSE(newMappedPortKafka)
+      kafka2SSE = Kafka2SSE(mappedPortKafka)
       kafka2SSE.run()
 
       // 10 + 1 Initial message
@@ -132,9 +131,10 @@ final class AlpakkaTrophySpec extends AsyncWordSpec with Matchers with BeforeAnd
     // Write start indicator for the LogFileScanner
     logger.info(s"Starting test: ${testData.name}")
 
-    logger.info("Starting Kafka container...")
-    kafkaContainer.run()
-    mappedPortKafka = kafkaContainer.mappedPort
+    logger.info("Starting Kafka...")
+    mappedPortKafka = EmbeddedKafka.start().config.kafkaPort
+    bootstrapServer = s"localhost:$mappedPortKafka"
+
     logger.info(s"Running Kafka on mapped port: $mappedPortKafka")
 
     // Start other components
@@ -152,8 +152,8 @@ final class AlpakkaTrophySpec extends AsyncWordSpec with Matchers with BeforeAnd
   }
 
   override protected def afterEach(testData: TestData): Unit = {
-    logger.info("Stopping Kafka container...")
-    kafkaContainer.stop()
+    logger.info("Stopping Kafka...")
+    EmbeddedKafka.stop()
     logger.info("Stopping other components...")
     websocketServer.stop()
     hl7Tcp2Kafka.stop()

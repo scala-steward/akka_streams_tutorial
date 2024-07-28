@@ -7,6 +7,7 @@ import org.testcontainers.utility.DockerImageName
 /**
   * Uses testcontainers.org to run the
   * latest Kafka-Version from Confluent
+  * See also Kafka broker from: /docker/docker-compose.yml
   *
   * Alternative: [[KafkaServerEmbedded]]
   *
@@ -17,10 +18,7 @@ import org.testcontainers.utility.DockerImageName
   */
 class KafkaServerTestcontainers {
   val logger: Logger = LoggerFactory.getLogger(this.getClass)
-  // Pin cp-kafka version for now, because 'latest' does not work on github actions anymore
-  // https://hub.docker.com/r/confluentinc/cp-kafka
-  // https://docs.confluent.io/platform/current/installation/versions-interoperability.html#cp-and-apache-kafka-compatibility
-  val kafkaVersion = "7.5.3"
+  val kafkaVersion = "7.7.0"
   val imageName = s"confluentinc/cp-kafka:$kafkaVersion"
   val originalPort = 9093
   var mappedPort = 1111
