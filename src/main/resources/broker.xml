@@ -31,13 +31,16 @@ Apache Artemis minimal broker config
         </security-settings>
 
         <!-- TODO sync with broker_docker.xml -->
-        <queues>
-            <queue name="jms.queue.exampleQueue">
-                <address>jms.queue.exampleQueue</address>
-                <durable>true</durable>
-            </queue>
-        </queues>
-
+        <addresses>
+            <address name="jms.queue.exampleQueue">
+                <multicast>
+                    <!-- pre-configured shared durable subscription queue -->
+                    <queue name="jms.queue.exampleQueue" max-consumers="10">
+                        <durable>true</durable>
+                    </queue>
+                </multicast>
+            </address>
+        </addresses>
 
         <address-settings>
             <address-setting match="jms.queue.exampleQueue">

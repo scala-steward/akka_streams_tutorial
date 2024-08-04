@@ -22,14 +22,14 @@ import scala.util.control.NonFatal
 
 /**
   * Use case:
-  *  - Process a stream of messages with reoccurring TRACE_ID
-  *  - For the first TRACE_ID: download .zip file from FileServer, add path to cache and store file
+  *  - Process a stream of (random gen) msgs with reoccurring TRACE_ID
+  *  - For the first TRACE_ID: download .zip file from FileServer, add path to local cache and store file
   *  - For subsequent TRACE_IDs: try to fetch path from local cache to avoid duplicate downloads per TRACE_ID
   *  - On downstream error: the path needs to be kept longer in the cache
   *  - On restart: populate cache from local filesystem
   *
   * Before running this class: start [[alpakka.env.FileServer]] to simulate non idempotent responses
-  * Monitor localFileCache dir with cmd:  watch ls -ltr
+  * Monitor `localFileCache` dir with cmd:  watch ls -ltr
   *
   * Doc:
   *  - Caffeine: https://github.com/ben-manes/caffeine
@@ -50,8 +50,8 @@ object LocalFileCacheCaffeine {
   }
 
   val scaleFactor = 1 // Raise to widen range of IDs and thus have more traffic
-  val evictionTime: FiniteDuration = 5.minutes // Lower eg to 5.seconds to see cache and file system deletes
-  val evictionTimeOnError: FiniteDuration = 10.minutes
+  val cacheEvictionTime: FiniteDuration = 5.minutes // Lower eg to 5.seconds to see cache and file system deletes
+  val cacheEvictionTimeOnError: FiniteDuration = 10.minutes
   val localFileCache: Path = Paths.get(System.getProperty("java.io.tmpdir")).resolve("localFileCache")
 
   logger.info(s"Starting with localFileCache dir: $localFileCache")
@@ -70,7 +70,7 @@ object LocalFileCacheCaffeine {
   val cache: Cache[Int, Path] =
     Scaffeine()
       .recordStats()
-      .expireAfter[Int, Path]((_, _) => evictionTime, (_, _, _) => evictionTimeOnError, (_, _, _) => evictionTime)
+      .expireAfter[Int, Path]((_, _) => cacheEvictionTime, (_, _, _) => cacheEvictionTimeOnError, (_, _, _) => cacheEvictionTime)
       .maximumSize(1000)
       .removalListener((key, value, cause) => deleteFromFileStore(key, value, cause))
       .build[Int, Path]()

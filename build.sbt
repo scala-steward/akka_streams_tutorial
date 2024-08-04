@@ -12,9 +12,9 @@ val pekkoConnectorVersion = "1.0.2"
 val pekkoConnectorKafkaVersion = "1.0.0"
 
 val kafkaVersion = "3.7.0"
-val activemqVersion = "5.18.4" // We are stuck with 5.x
-val artemisVersion = "2.35.0"
-val testContainersVersion = "1.19.8"
+val activemqVersion = "5.18.5" // We are stuck with 5.x
+val artemisVersion = "2.36.0"
+val testContainersVersion = "1.20.1"
 val keycloakVersion = "24.0.4"
 val sttpVersion = "3.9.0"
 val influxdbVersion = "7.1.0"
@@ -90,7 +90,7 @@ libraryDependencies ++= Seq(
 
   "com.influxdb" %% "influxdb-client-scala" % influxdbVersion,
   "com.influxdb" % "flux-dsl" % influxdbVersion,
-  "org.influxdb" % "influxdb-java" % "2.23",
+  "org.influxdb" % "influxdb-java" % "2.24",
 
   "ca.uhn.hapi" % "hapi-base" % "2.3",
   "ca.uhn.hapi" % "hapi-structures-v23" % "2.3",
@@ -111,7 +111,7 @@ libraryDependencies ++= Seq(
   "io.projectreactor" % "reactor-core" % "3.5.4",
   "io.reactivex.rxjava3" % "rxjava" % "3.1.6",
 
-  "com.github.blemale" %% "scaffeine" % "5.2.1",
+  "com.github.blemale" %% "scaffeine" % "5.3.0",
   "ch.qos.logback" % "logback-classic" % "1.4.12",
 
   "org.testcontainers" % "testcontainers" % testContainersVersion,

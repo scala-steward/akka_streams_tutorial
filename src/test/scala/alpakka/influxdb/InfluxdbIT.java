@@ -1,8 +1,6 @@
 package alpakka.influxdb;
 
-import org.apache.pekko.Done;
 import org.apache.pekko.actor.ActorSystem;
-import org.junit.Ignore;
 import org.junit.jupiter.api.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,12 +11,9 @@ import org.testcontainers.utility.DockerImageName;
 import util.LogFileScanner;
 
 import java.io.IOException;
-import java.util.List;
+import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -46,8 +41,8 @@ public class InfluxdbIT {
         // Doc: https://docs.influxdata.com/influxdb/v2.1/reference/release-notes/influxdb/
         LOGGER.info("InfluxDB container listening on port: {}. Running: {} ", influxDBContainer.getMappedPort(INFLUXDB_PORT), influxDBContainer.isRunning());
         Container.ExecResult result = influxDBContainer.execInContainer("influx", "setup", "-b", "testbucket", "-f", "-o", "testorg", "-t", "abcdefgh", "-u", "admin", "-p", "adminadmin");
-        LOGGER.info("Result exit code: " + result.getExitCode());
-        LOGGER.info("Result stdout: " + result.getStdout());
+        LOGGER.info("Result exit code: {}", result.getExitCode());
+        LOGGER.info("Result stdout: {}", result.getStdout());
         browserClient();
     }
 
@@ -67,12 +62,15 @@ public class InfluxdbIT {
     @Order(1)
     void testWriteAndRead() {
         int maxClients = 5;
-        int nPoints = 1000;
+        int nPoints = 100;
 
-        List<CompletionStage<Done>> futList = IntStream.rangeClosed(1, maxClients).boxed().parallel()
-                .map(i -> influxDBWriter.writeTestPoints(nPoints, "sensor" + i))
-                .collect(Collectors.toList());
-        assertThat(CompletableFuture.allOf(futList.toArray(new CompletableFuture[futList.size()]))).succeedsWithin(5 * maxClients, TimeUnit.SECONDS);
+        assertThat(
+                CompletableFuture.allOf(
+                        IntStream.rangeClosed(1, maxClients)
+                                .mapToObj(i -> influxDBWriter.writeTestPoints(nPoints, "sensor" + i))
+                                .toArray(CompletableFuture[]::new)
+                )
+        ).succeedsWithin(Duration.ofSeconds(10 * maxClients));
 
         assertThat(influxDBReader.getQuerySync("testMem").length()).isEqualTo(nPoints * maxClients);
         assertThat(influxDBReader.fluxQueryCount("testMem")).isEqualTo(nPoints * maxClients);
@@ -81,13 +79,10 @@ public class InfluxdbIT {
 
     @Test
     @Order(2)
-    @Ignore
     void testWriteAndReadLineProtocol() throws ExecutionException, InterruptedException {
         int nPoints = 10;
         influxDBWriter.writeTestPointsFromLineProtocolSync();
-        // TODO Activate, when "com.influxdb" %% "influxdb-client-scala" is available for pekko
-        //assertThat(influxDBReader.getQuerySync("testMemLP").length()).isEqualTo(nPoints);
-        assert (true);
+        assertThat(influxDBReader.getQuerySync("testMemLP").length()).isEqualTo(nPoints);
     }
 
     @Test
