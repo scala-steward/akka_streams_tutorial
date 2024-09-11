@@ -6,7 +6,7 @@ version := "1.0"
 
 scalaVersion := "2.13.14"
 
-val pekkoVersion = "1.1.0-M1"
+val pekkoVersion = "1.1.0"
 val pekkoHTTPVersion = "1.1.0-M1"
 val pekkoConnectorVersion = "1.0.2"
 val pekkoConnectorKafkaVersion = "1.0.0"
@@ -19,7 +19,7 @@ val keycloakVersion = "24.0.4"
 val sttpVersion = "3.9.0"
 val influxdbVersion = "7.1.0"
 val awsClientVersion = "2.25.32"
-val gatlingVersion = "3.11.5"
+val gatlingVersion = "3.12.0"
 val circeVersion = "0.14.8"
 
 libraryDependencies ++= Seq(
