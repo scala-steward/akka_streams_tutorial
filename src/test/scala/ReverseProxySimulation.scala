@@ -6,7 +6,7 @@ import scala.concurrent.duration.*
 
 /**
   * Start [[akkahttp.ReverseProxy]]
-  * Run this simulation with the cmd:
+  * Run this simulation from cmd shell with:
   * sbt 'Gatling/testOnly ReverseProxySimulation'
   */
 class ReverseProxySimulation extends Simulation {
@@ -26,10 +26,11 @@ class ReverseProxySimulation extends Simulation {
           .header("Host", "local")
           .header("X-Correlation-ID", session => s"1-${session("correlationId").as[Int]}")
           .check(status.is(200))
+          .check(status.saveAs("responseStatus"))
           .check(header("X-Correlation-ID").saveAs("responseCorrelationId"))
       )
         .exec(session => {
-          println(s"Got response for id: ${session("responseCorrelationId").as[String]}")
+          println(s"Got: ${session.status} response with HTTP status: ${session("responseStatus").as[String]} for id: ${session("responseCorrelationId").as[String]}")
           session
         })
         .exec(session => session.set("correlationId", session("correlationId").as[Int] + 1))

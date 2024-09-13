@@ -24,10 +24,10 @@ import scala.concurrent.duration.DurationInt
 import scala.util.{Failure, Success}
 
 /**
-  * Conceptual PoC inspired by:
+  * This conceptual all-in-one PoC is inspired by:
   * https://github.com/mathieuancelin/akka-http-reverse-proxy
   *
-  * HTTP reverse proxy server echo PoC with:
+  * Features ReverseProxy:
   *  - Weighted round robin load balancing
   *  - Retry on HTTP 5xx from target servers
   *  - CircuitBreaker per target server to avoid overload
@@ -40,8 +40,8 @@ import scala.util.{Failure, Success}
   * HTTP client(s) --> ReverseProxy --> remote target server(s)
   *
   * Remarks:
-  *  - The target server selection works via the "Host" HTTP header
-  *  - Local/Remote target servers are designed to be flaky to show retry/circuit breaker behavior
+  *  - The target server selection is via the "Host" HTTP header
+  *  - Local/Remote target servers are designed to be flaky to show Retry/CircuitBreaker behavior
   *  - On top of the built in client, you may also try other clients
   *  - This PoC may not scale well, possible bottlenecks are:
   *     - Combination of Retry/CircuitBreaker
@@ -278,29 +278,17 @@ object Retry {
   private[this] def retryPromise[T](times: Int, promise: Promise[T], failure: Option[Throwable],
                                     f: => Future[T])(implicit ec: ExecutionContext): Unit = {
     (times, failure) match {
-      case (0, Some(e)) =>
-        promise.tryFailure(e)
-      case (0, None) =>
-        promise.tryFailure(new RuntimeException("Failure, but lost track of exception"))
+      case (0, Some(e)) => promise.tryFailure(e)
+      case (0, None) => promise.tryFailure(new RuntimeException("Failure, but lost track of exception"))
       case (_, _) =>
         f.onComplete {
-          case Success(t) =>
-            t match {
-              case httpResponse: HttpResponse =>
-                val code = httpResponse.status.intValue()
-                val id = httpResponse.getHeader("X-Correlation-ID").orElse(RawHeader("X-Correlation-ID", "N/A")).value()
-                if (code >= 500) {
-                  logger.info(s"ReverseProxy got 5xx server error for id: $id. Retries left: ${times - 1}")
-                  retryPromise[T](times - 1, promise, Some(new RuntimeException(s"Received: $code from target server")), f)
-                } else {
-                  promise.trySuccess(t)
-                }
-              case _ =>
-                promise.tryFailure(new RuntimeException("This should not happen: Expected type HttpResponse, but got sth else"))
-            }
-          case Failure(e) =>
-            retryPromise[T](times - 1, promise, Some(e), f)
-        }(ec)
+          case Success(httpResponse: HttpResponse) if httpResponse.status.intValue() >= 500 =>
+            val id = httpResponse.getHeader("X-Correlation-ID").orElse(RawHeader("X-Correlation-ID", "N/A")).value()
+            logger.info(s"ReverseProxy got 5xx server error for id: $id. Retries left: ${times - 1}")
+            retryPromise[T](times - 1, promise, Some(new RuntimeException(s"Received: ${httpResponse.status.intValue()} from target server")), f)
+          case Success(t) => promise.trySuccess(t)
+          case Failure(e) => retryPromise[T](times - 1, promise, Some(e), f)
+        }
     }
   }
 }
