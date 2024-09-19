@@ -6,14 +6,14 @@ version := "1.0"
 
 scalaVersion := "2.13.14"
 
-val pekkoVersion = "1.1.0"
+val pekkoVersion = "1.1.1"
 val pekkoHTTPVersion = "1.1.0-M1"
 val pekkoConnectorVersion = "1.0.2"
 val pekkoConnectorKafkaVersion = "1.0.0"
 
 val kafkaVersion = "3.7.0"
 val activemqVersion = "5.18.5" // We are stuck with 5.x
-val artemisVersion = "2.36.0"
+val artemisVersion = "2.37.0"
 val testContainersVersion = "1.20.1"
 val keycloakVersion = "24.0.4"
 val sttpVersion = "3.9.0"
@@ -67,7 +67,7 @@ libraryDependencies ++= Seq(
   "org.apache.pekko" %% "pekko-connectors-sse" % pekkoConnectorVersion,
   "org.apache.pekko" %% "pekko-connectors-file" % pekkoConnectorVersion,
   // With the latest sshj lib explicitly included, we get a more robust behaviour on "large" data sets in SftpEcho
-  "com.hierynomus" % "sshj" % "0.38.0",
+  "com.hierynomus" % "sshj" % "0.39.0",
   "org.apache.pekko" %% "pekko-connectors-xml" % pekkoConnectorVersion,
   "org.apache.pekko" %% "pekko-connectors-ftp" % pekkoConnectorVersion,
   "org.apache.pekko" %% "pekko-connectors-elasticsearch" % pekkoConnectorVersion,

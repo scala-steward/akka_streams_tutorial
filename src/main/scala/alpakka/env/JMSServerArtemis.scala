@@ -83,13 +83,13 @@ object JMSServerArtemis extends App {
     try {
       val session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE)
       val producer = session.createProducer(queue)
-      val message = session.createTextMessage("Test msg JNDI sent at:" + LocalDateTime.now())
+      val message = session.createTextMessage("Test msg JNDI sent at: " + LocalDateTime.now())
       logger.info("About to send: " + message.getText)
       producer.send(message)
       val messageConsumer = session.createConsumer(queue)
 
       val messageReceived = messageConsumer.receive(1000).asInstanceOf[TextMessage]
-      logger.info("Received message JNDI:" + messageReceived.getText)
+      logger.info("Received message JNDI: " + messageReceived.getText)
     } finally {
       connection.close()
     }

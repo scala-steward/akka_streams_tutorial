@@ -226,7 +226,6 @@ object SftpEcho extends App {
     val sshClient = new SSHClient(new DefaultConfig)
     sshClient.addHostKeyVerifier(new PromiscuousVerifier) // to skip host verification
 
-    sshClient.loadKnownHosts()
     sshClient.connect(hostname, port)
     sshClient.authPassword(username, password)
     sshClient

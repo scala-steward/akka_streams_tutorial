@@ -6,8 +6,10 @@ import scala.concurrent.duration.*
 
 /**
   * Start [[akkahttp.ReverseProxy]]
-  * Run this simulation from cmd shell with:
+  * Run this simulation from cmd shell:
   * sbt 'Gatling/testOnly ReverseProxySimulation'
+  * or from sbt shell:
+  * Gatling/testOnly ReverseProxySimulation
   */
 class ReverseProxySimulation extends Simulation {
   val baseUrl = "http://127.0.0.1:8080"
@@ -24,7 +26,7 @@ class ReverseProxySimulation extends Simulation {
         http("Local Mode Request")
           .get("/")
           .header("Host", "local")
-          .header("X-Correlation-ID", session => s"1-${session("correlationId").as[Int]}")
+          .header("X-Correlation-ID", session => s"load-${session.userId}-${session("correlationId").as[Int]}")
           .check(status.is(200))
           .check(status.saveAs("responseStatus"))
           .check(header("X-Correlation-ID").saveAs("responseCorrelationId"))
