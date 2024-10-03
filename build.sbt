@@ -7,7 +7,7 @@ version := "1.0"
 scalaVersion := "2.13.15"
 
 val pekkoVersion = "1.1.1"
-val pekkoHTTPVersion = "1.1.0-M1"
+val pekkoHTTPVersion = "1.1.0"
 val pekkoConnectorVersion = "1.0.2"
 val pekkoConnectorKafkaVersion = "1.0.0"
 
@@ -139,8 +139,8 @@ libraryDependencies ++= Seq(
   "org.keycloak" % "keycloak-admin-client" % keycloakVersion,
   "org.jboss.spec.javax.ws.rs" % "jboss-jaxrs-api_2.1_spec" % "2.0.2.Final",
 
-  "org.postgresql" % "postgresql" % "42.7.3",
-  "io.zonky.test.postgres" % "embedded-postgres-binaries-bom" % "16.2.0" % Test pomOnly(),
+  "org.postgresql" % "postgresql" % "42.7.4",
+  "io.zonky.test.postgres" % "embedded-postgres-binaries-bom" % "16.4.0" % Test pomOnly(),
   "io.zonky.test" % "embedded-postgres" % "2.0.7" % Test,
 
   "org.scalatest" %% "scalatest" % "3.2.18" % Test,
