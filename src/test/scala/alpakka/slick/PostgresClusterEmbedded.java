@@ -26,8 +26,8 @@ public class PostgresClusterEmbedded implements BeforeAllCallback, AfterAllCallb
                         .setCleanDataDirectory(true)
                         .setPort(5432)
                         // Set the write-ahead log level to "logical" to make sure that enough
-                        // information is written
-                        // to the write-ahead log as is required for CDC with Debezium
+                        // information is written to the write-ahead log
+                        // because this is required for CDC with Debezium
                         .setServerConfig("wal_level", "logical")
                         .start();
     }

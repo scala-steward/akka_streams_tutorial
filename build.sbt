@@ -6,7 +6,7 @@ version := "1.0"
 
 scalaVersion := "2.13.15"
 
-val pekkoVersion = "1.1.1"
+val pekkoVersion = "1.1.2"
 val pekkoHTTPVersion = "1.1.0"
 val pekkoConnectorVersion = "1.0.2"
 val pekkoConnectorKafkaVersion = "1.0.0"
@@ -104,7 +104,7 @@ libraryDependencies ++= Seq(
   "org.apache.httpcomponents.core5" % "httpcore5" % "5.3",
   "commons-io" % "commons-io" % "2.16.1",
   "org.apache.commons" % "commons-lang3" % "3.12.0",
-  "com.sksamuel.avro4s" %% "avro4s-core" % "4.1.2",
+  "com.sksamuel.avro4s" %% "avro4s-core" % "4.1.2", // 5.x for Scala 3
 
   "org.apache.camel" % "camel-core" % "3.20.2",
   "org.apache.camel" % "camel-reactive-streams" % "3.20.2",
