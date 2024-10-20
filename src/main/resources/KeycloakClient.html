@@ -1,12 +1,13 @@
 <!--
-  HTML5 client, updated according to:
-  https://www.keycloak.org/docs/24.0.4/securing_apps
+  HTML5 client with Keycloak Javascript adapter (updated to 26.x fashion)
+  https://www.keycloak.org/securing-apps/javascript-adapter
+  https://www.keycloak.org/docs/latest/upgrading/index.html#keycloak-js
   -->
 
-<html>
+<html lang="en">
 <head>
-    <script src="http://localhost:%%PORT%%/js/keycloak.js"></script>
-    <title>Keycloak test page</title>
+    <script src="/js/keycloak.js"></script>
+    <title>Keycloak test client</title>
 </head>
 <body>
 
@@ -37,13 +38,39 @@
 </div>
 
 <h2>Result</h2>
-<pre style="background-color: #ddd; border: 1px solid #ccc; padding: 10px; word-wrap: break-word; white-space: pre-wrap;" id="output"></pre>
+<pre style="background-color: #ddd; border: 1px solid #ccc; padding: 10px; word-wrap: break-word; white-space: pre-wrap;"
+     id="output"></pre>
 
 <h2>Events</h2>
-<pre style="background-color: #ddd; border: 1px solid #ccc; padding: 10px; word-wrap: break-word; white-space: pre-wrap;" id="events"></pre>
+<pre style="background-color: #ddd; border: 1px solid #ccc; padding: 10px; word-wrap: break-word; white-space: pre-wrap;"
+     id="events"></pre>
 
 
 <script>
+    let keycloak;
+
+    window.onload = async function () {
+        keycloak = new Keycloak({
+            url: 'http://localhost:%%PORT%%',
+            realm: 'test',
+            clientId: 'my-test-client'
+        });
+
+        // Flow can be changed to 'implicit' or 'hybrid', but then client must enable implicit flow in admin console too
+        const initOptions = {
+            responseMode: 'fragment',
+            flow: 'standard'
+        };
+
+        try {
+            const authenticated = await keycloak.init(initOptions);
+            output('Init Success (' + (authenticated ? 'Authenticated' : 'Not Authenticated') + ')');
+            setupKeycloakEventHandlers();
+        } catch (error) {
+            output('Init Error');
+        }
+    };
+
     function loadUsers() {
         console.log("About to load users...")
         const url = 'http://127.0.0.1:6002/users';
@@ -108,13 +135,13 @@
     }
 
     function refreshToken(minValidity) {
-        keycloak.updateToken(minValidity).then(function(refreshed) {
+        keycloak.updateToken(minValidity).then(function (refreshed) {
             if (refreshed) {
                 output(keycloak.tokenParsed);
             } else {
                 output('Token not refreshed, valid for ' + Math.round(keycloak.tokenParsed.exp + keycloak.timeSkew - new Date().getTime() / 1000) + ' seconds');
             }
-        }).catch(function() {
+        }).catch(function () {
             output('Failed to refresh token');
         });
     }
@@ -148,61 +175,45 @@
         document.getElementById('events').innerHTML = new Date().toLocaleString() + "\t" + event + "\n" + e;
     }
 
-    // We initialize here to handle dynamic port (vs in json file)
-    let keycloak = new Keycloak({
-        url: 'http://localhost:%%PORT%%',
-        realm: 'test',
-        clientId: 'my-test-client'
-    });
+    function setupKeycloakEventHandlers() {
+        keycloak.onAuthSuccess = function () {
+            event('Auth Success');
+        };
 
+        keycloak.onAuthError = function (errorData) {
+            event("Auth Error: " + JSON.stringify(errorData));
+        };
 
-    keycloak.onAuthSuccess = function () {
-        event('Auth Success');
-    };
+        keycloak.onAuthRefreshSuccess = function () {
+            event('Auth Refresh Success');
+        };
 
-    keycloak.onAuthError = function (errorData) {
-        event("Auth Error: " + JSON.stringify(errorData) );
-    };
+        keycloak.onAuthRefreshError = function () {
+            event('Auth Refresh Error');
+        };
 
-    keycloak.onAuthRefreshSuccess = function () {
-        event('Auth Refresh Success');
-    };
+        keycloak.onAuthLogout = function () {
+            event('Auth Logout');
+        };
 
-    keycloak.onAuthRefreshError = function () {
-        event('Auth Refresh Error');
-    };
+        keycloak.onTokenExpired = function () {
+            event('Access token expired');
+        };
 
-    keycloak.onAuthLogout = function () {
-        event('Auth Logout');
-    };
-
-    keycloak.onTokenExpired = function () {
-        event('Access token expired');
-    };
-
-    keycloak.onActionUpdate = function (status) {
-        switch (status) {
-            case 'success':
-                event('Action completed successfully'); break;
-            case 'cancelled':
-                event('Action cancelled by user'); break;
-            case 'error':
-                event('Action failed'); break;
-        }
-    };
-
-    // Flow can be changed to 'implicit' or 'hybrid', but then client must enable implicit flow in admin console too
-    const initOptions = {
-        responseMode: 'fragment',
-        flow: 'standard'
-    };
-
-    keycloak.init(initOptions).then(function(authenticated) {
-        output('Init Success (' + (authenticated ? 'Authenticated' : 'Not Authenticated') + ')');
-    }).catch(function() {
-        output('Init Error');
-    });
-
+        keycloak.onActionUpdate = function (status) {
+            switch (status) {
+                case 'success':
+                    event('Action completed successfully');
+                    break;
+                case 'cancelled':
+                    event('Action cancelled by user');
+                    break;
+                case 'error':
+                    event('Action failed');
+                    break;
+            }
+        };
+    }
 </script>
 </body>
 </html>

@@ -58,7 +58,7 @@ object OIDCKeycloak extends App with CORSHandler with JsonSupport {
 
   def runKeycloak() = {
     // Pin to same version as "keycloakVersion" in build.sbt
-    val keycloak = new KeycloakContainer("quay.io/keycloak/keycloak:24.0.4")
+    val keycloak = new KeycloakContainer("quay.io/keycloak/keycloak:26.0.1")
       // Keycloak config taken from:
       // https://github.com/keycloak/keycloak/blob/main/examples/js-console/example-realm.json
       .withRealmImportFile("keycloak_realm_config.json")
@@ -224,7 +224,14 @@ object OIDCKeycloak extends App with CORSHandler with JsonSupport {
         )
       }
 
-    val routes: Route = corsHandler(userRoutes) ~ getFromDocRoot
+    val getResource: Route =
+      pathPrefix("js") {
+        path(Remaining) { file =>
+          getFromFile(s"src/main/resources/js/$file")
+        }
+      }
+
+    val routes: Route = corsHandler(userRoutes) ~ getFromDocRoot ~ getResource
     val bindingFuture = Http().newServerAt("127.0.0.1", 6002).bind(routes)
 
     bindingFuture.onComplete {
