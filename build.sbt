@@ -135,8 +135,8 @@ libraryDependencies ++= Seq(
   "org.junit.jupiter" % "junit-jupiter-api" % "5.9.2" % Test,
 
   "org.keycloak" % "keycloak-core" % keycloakVersion,
-  "org.keycloak" % "keycloak-adapter-core" % keycloakVersion,
-  "org.keycloak" % "keycloak-admin-client" % keycloakVersion,
+  "org.keycloak" % "keycloak-adapter-core" % "25.0.3",
+  "org.keycloak" % "keycloak-admin-client" % "26.0.0",
   "org.jboss.spec.javax.ws.rs" % "jboss-jaxrs-api_2.1_spec" % "2.0.2.Final",
 
   "org.postgresql" % "postgresql" % "42.7.4",
